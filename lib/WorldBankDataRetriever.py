@@ -25,7 +25,7 @@ class WorldBankDataRetriever(AbstractDataRetriever):
             name_ = name_.split(' (')[0]
         super().__init__(
             data_name=name_,
-            source  =  f"https://data.worldbank.org/indicator/{name_}",
+            source  =  f"https://data.worldbank.org/indicator/{indicator}",
             is_rate=is_rate,
             min_year_range=min_year_range or [1990, 1995],
             max_year_range=max_year_range or [2019, 2024],
@@ -53,7 +53,7 @@ class WorldBankDataRetriever(AbstractDataRetriever):
         return self._format(data, self.indicator), year_from, year_to
 
     def customize_plot(self, bbox, ax, fig):
-        note = textwrap.fill(self.source_note, width=40,max_lines=9 )
+        note = textwrap.fill(self.source_note, width=40,max_lines=9 , placeholder="... [See more at source]")
         if self.source_note:
             ax.annotate(
                 f"{note}",

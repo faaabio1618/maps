@@ -102,6 +102,11 @@ class Country(Enum):
         "iso2": "HU",
         "iso3": "HUN",
     }
+    KAZAKHSTAN = {
+        "name": "Kazakhstan",
+        "iso2": "KZ",
+        "iso3": "KAZ",
+    }
     ICELAND = {
         "name": "Iceland",
         "iso2": "IS",
@@ -340,6 +345,8 @@ class Country(Enum):
             return 4580000, 4000000
         if self == Country.NORWAY:
             return 4300000, 4200000
+        if self == Country.KAZAKHSTAN:
+            return 7359144, 3800000
         return None, None
 
 

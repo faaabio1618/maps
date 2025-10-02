@@ -32,7 +32,6 @@ def all():
         WorldBankDataRetriever("SH.ALC.PCAP.LI", min_year_range=[2000, 2001]),
         WorldBankDataRetriever("SH.MED.PHYS.ZS"),
         WorldBankDataRetriever("SL.GDP.PCAP.EM.KD"),
-        WorldBankDataRetriever("SL.GDP.PCAP.EM.KD"),
         WorldBankDataRetriever("SL.TLF.TOTL.IN"),
         WorldBankDataRetriever("SM.POP.RHCR.EA", is_rate=True),
         WorldBankDataRetriever("SP.DYN.CBRT.IN", is_rate=True),
@@ -41,7 +40,8 @@ def all():
         WorldBankDataRetriever("SP.POP.TOTL"),
         WorldBankDataRetriever("VC.IHR.PSRC.P5"),
     ]
-    #WorldBankDataRetriever("VC.IHR.PSRC.P5").plot()
+    # TODO
+    # enlarge title
     for retriever_instance in retriever:
         retriever_instance.plot()
 

@@ -123,6 +123,7 @@ class AbstractDataRetriever(abc.ABC):
                                         gdf['%_change'].astype(str), gdf["iso_a3"]):
 
             value = np.nan if label == "nan" else float(label)
+            # print(f"{country}: {value} {x} {y}")
 
             if self.round == 0 and label != "nan":
                 label = str(int(value))
@@ -154,7 +155,7 @@ class AbstractDataRetriever(abc.ABC):
                     color=font_color, alpha=1,
                     bbox=None if label == "///" else bbox)
 
-        ax.set_title(f"{self.data_name}{' (change in %)' if not self.is_rate else ''}:  {year_from}→{year_to}")
+        ax.set_title(f"{self.data_name}{' (change in %)' if not self.is_rate else ''}:  {year_from}→{year_to}", fontsize=16,)
         fig.tight_layout()
         ax.annotate(
             f"Source: {self.source}",
@@ -164,11 +165,10 @@ class AbstractDataRetriever(abc.ABC):
         bbox = {'facecolor': 'yellow', 'edgecolor': 'orange', 'boxstyle': 'round,pad=0.3', 'alpha': 0.9}
         )
 
-        # add a "Graphics by u/fabio1618" at the bottom right
         ax.annotate(
             f"Graphics by u/fabio1618",
-            xy=(0.965, 0.05), xycoords='figure fraction',
-            ha="right", fontsize=10, color="black", alpha=0.8,
+            xy=(0.965, 0.03), xycoords='figure fraction',
+            ha="right", fontsize=8, color="black", alpha=0.8,
             bbox = {'facecolor': "white", 'edgecolor': 'orange', 'boxstyle': 'round,pad=0.3', 'alpha': 0.9}
         )
 

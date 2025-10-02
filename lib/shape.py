@@ -1,6 +1,8 @@
 import geopandas as gpd
 from shapely.geometry import Polygon
 
+# This script is used to keep only the European part of Russia from a full country shapefile.
+
 gdf = gpd.read_file("maps/gadm41_RUS_00.json")
 
 # 2) Make sure it's in WGS84 (lon/lat)
