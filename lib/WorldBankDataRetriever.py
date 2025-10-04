@@ -48,12 +48,27 @@ class WorldBankDataRetriever(AbstractDataRetriever):
         data['iso_a3'] = data['country'].map(names_to_iso3)
         data['year'] = data['year'].astype(int)
         data.columns = ['country', 'year', self.indicator, 'iso_a3']
-        year_from, year_to = self.good_years(data= data, data_column=self.indicator, region=region)
-        data = data[(data['year'] == year_from) | (data['year'] == year_to)]
+        year_from, year_to = self.good_years(data=data, data_column=self.indicator, region=region)
+        mask_from = data['year'].between(max(year_from - 1, self.min_year_range[0]),
+                                         min(self.min_year_range[1], year_from + 1))
+        mask_to = data['year'].between(max(year_to - 1, self.max_year_range[0]),
+                                       min(self.max_year_range[1], year_to + 1))
+        data = data[mask_from | mask_to]
+        for country in region.iso3_list:
+            values = data.loc[(data['iso_a3'] == country) & (data[self.indicator].notna()), 'year'].values
+            has_year_from = any(year_from - 1 <= year <= year_from + 1 for year in values)
+            har_year_to = any(year_to - 1 <= year <= year_to + 1 for year in values)
+            if (year_from not in values or year_to not in values) and (has_year_from and har_year_to):
+                self.partial_countries.append(Country.get_by_iso3(country))
+
         return self._format(data=data, data_column=self.indicator, region=region), year_from, year_to
 
     def customize_plot(self, *, region, bbox, ax, fig):
-        note = textwrap.fill(self.source_note, width=40, max_lines=9, placeholder="... [See more at source]")
+        if len(self.partial_countries) > 0:
+            note = "**Countries with values in parentheses use data from adjacent years.**    \n" + self.source_note
+        else:
+            note = self.source_note
+        note = textwrap.fill(note, width=40, max_lines=9, placeholder="... [See more at source]", replace_whitespace=False,)
         xy, ha, va = region.description_position
         if self.source_note:
             ax.annotate(

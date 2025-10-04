@@ -10,8 +10,8 @@ class DebtRetrieval(AbstractDataRetriever):
     def __init__(self, data_name, *,  is_rate=False, min_year_range=None, max_year_range=None):
         super().__init__(
             is_rate=is_rate,
-            min_year_range=min_year_range or [1995],
-            max_year_range=max_year_range or [2024],
+            min_year_range=min_year_range or [1995,1995],
+            max_year_range=max_year_range or [2024,2024],
             data_name=data_name,
             round=0,
             source="https://www.imf.org/external/datamapper/CG_DEBT_GDP@GDD")

@@ -1,6 +1,6 @@
 import abc
 import os
-from typing import Tuple
+from typing import Tuple, List
 
 import cmocean
 import geopandas as gpd
@@ -21,9 +21,10 @@ class AbstractDataRetriever(abc.ABC):
         self.data_name = data_name
         self.is_rate = is_rate
         self.min_year_range = min_year_range or [1990, 1996]
-        self.max_year_range = max_year_range or [2019, 2024]
+        self.max_year_range = max_year_range or [2018, 2024]
         self.round = round
         self.source = source
+        self.partial_countries = []
 
     @abc.abstractmethod
     def retrieve(self, region) -> Tuple[pd.DataFrame, int, int]:
@@ -82,12 +83,18 @@ class AbstractDataRetriever(abc.ABC):
         region_map = region_map.to_crs(region.crs)
         data_label = 'data'
         data = data[['iso_a3', data_label]]
-        for iso3 in data['iso_a3'].unique():
+        for iso3 in region.iso3_list:
             # we don't like naciscdn borders
             geometry = AbstractDataRetriever.__get_maps(iso3)
             geometry = geometry.to_crs(region_map.crs)
-            region_map.loc[region_map['ADM0_A3'] == iso3, 'geometry'] = geometry["geometry"][0]
-
+            if (region_map['ADM0_A3'] == iso3).any():
+                region_map.loc[region_map['ADM0_A3'] == iso3, 'geometry'] = geometry['geometry'].iloc[0]
+            else:
+                new_row = gpd.GeoDataFrame(
+                    {'ADM0_A3': [iso3], 'geometry': [geometry['geometry'].iloc[0]]},
+                    crs=region_map.crs
+                )
+                region_map = pd.concat([region_map, new_row], ignore_index=True)
         disputed_territories = gpd.read_file("maps/ne_10m_admin_0_disputed_areas.zip")
         disputed_territories = disputed_territories.to_crs(region.crs)
         # filter by SOV_A3
@@ -116,13 +123,13 @@ class AbstractDataRetriever(abc.ABC):
         ax.set_yticks([])
         ax.margins(1)
 
-        # roi = roi = gpd.GeoDataFrame(geometry=[box(66, 22, 100, 39)], crs=region.cr
         disputed_territories.plot(ax=ax, facecolor="darkgray", edgecolor="white", hatch="///", linewidth=0)
-        vals = gdf[data_label].to_numpy(dtype=float)  # we center at 0
+        countries_to_show = [country.iso3 for country in region.countries if country.show_value]
+        vals = gdf[gdf['ADM0_A3'].isin(countries_to_show)][data_label].to_numpy(dtype=float)  # we center at 0
         min_value = np.nanmin(vals)
         max_value = np.nanmax(vals)
         maxabs = np.nanpercentile(np.abs(vals), 92)
-        minabs = np.nanpercentile(np.abs(vals), 8)
+        # minabs = np.nanpercentile(np.abs(vals), 8)
         vmin = -1 * maxabs
         vcenter = 0
         if vmin == 0:
@@ -131,9 +138,12 @@ class AbstractDataRetriever(abc.ABC):
         schema = cmocean.cm.curl_r
         gdf.plot(column=data_label, ax=ax, legend=False, cmap=schema, norm=norm,
                  linewidth=0.5, edgecolor="0.7", antialiased=True,
-                 missing_kwds={"color": "#e0e0e0", "edgecolor": "0.4", "label": NA_LABEL})
+                 missing_kwds={"color": "#e0e0e0", "edgecolor": "0.7", "label": NA_LABEL})
+        # exclude countries where show_value is False
 
         for country_obj in region.countries:
+            if not country_obj.show_value:
+                continue
             country = country_obj.iso3
             x, y = country_obj.label_coords(region)
             row = data.loc[data["iso_a3"] == country].iloc[0]
@@ -160,8 +170,10 @@ class AbstractDataRetriever(abc.ABC):
                     label = "−" + label[1:]
                 if not self.is_rate:
                     label = f"{label}%"
+                if country_obj in self.partial_countries:
+                    label = f"({label})"
 
-            #  label = country_obj.iso3
+            # label = country_obj.iso3
             # print(f'{country} {x} {y}')
             number_of_digits = len(str(value))
             font_size = country_obj.label_size - number_of_digits + self.round
@@ -207,8 +219,19 @@ class AbstractDataRetriever(abc.ABC):
     def _format(self, *, data, data_column, region):
         # add missing countries
         countries = region.countries
+        data = data[data['iso_a3'].isin([country.iso3 for country in countries])]
         year_from = min(data['year'].values)
         year_to = max(data['year'].values)
+        # filter out nan
+        data = data[data[data_column].notna()]
+        data["min_year"] = data.groupby("iso_a3")["year"].transform("min")
+        data["max_year"] = data.groupby("iso_a3")["year"].transform("max")
+        data = data[(data["min_year"] >= self.min_year_range[0]) & (data["min_year"] <= self.min_year_range[1])]
+        data = data[(data["max_year"] >= self.max_year_range[0]) & (data["max_year"] <= self.max_year_range[1])]
+
+        data = data[(data['year'] == data["min_year"]) | (data['year'] == data["max_year"])]
+        data = data.drop(columns=["min_year", "max_year"])
+
         missing_countries = [country for country in countries if country.iso3 not in data['iso_a3'].values]
         for country in missing_countries:
             if country:
@@ -218,8 +241,8 @@ class AbstractDataRetriever(abc.ABC):
                     data_column: [np.nan]
                 })], ignore_index=True)
 
-        # remove countries not in the region
-        data = data[data['iso_a3'].isin([country.iso3 for country in countries])]
+        data.loc[(data['year'] >= self.min_year_range[0]) & (data['year'] <= self.min_year_range[1]), 'year'] = year_from
+        data.loc[(data['year'] >= self.max_year_range[0]) & (data['year'] <= self.max_year_range[1]), 'year'] = year_to
 
         data = data.pivot(index='iso_a3', columns='year', values=data_column)
         data.columns = [f"{year}_{data_column}" for year in data.columns]

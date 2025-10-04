@@ -9,6 +9,7 @@ class Country(Enum):
     }
 
     ANDORRA = {
+        "show_value" : False,
         "name": "Andorra",
         "iso2": "AD",
         "iso3": "AND",
@@ -235,10 +236,12 @@ class Country(Enum):
     }
     LIECHTENSTEIN = {
         "name": "Liechtenstein",
+        "show_value" : False,
         "iso2": "LI",
         "iso3": "LIE",
     }
     SAN_MARINO = {
+        "show_value" : False,
         "name": "San Marino",
         "iso2": "SM",
         "iso3": "SMR",
@@ -466,6 +469,12 @@ class Country(Enum):
         "iso2": "UZ",
         "iso3": "UZB",
     }
+    HOLY_SEE = {
+        "show_value" : False,
+        "name": "Holy See",
+        "iso2": "VA",
+        "iso3": "VAT",
+    }
     VIETNAM = {
         "name": "Vietnam",
         "iso2": "VN",
@@ -515,6 +524,10 @@ class Country(Enum):
         return self.value["iso3"]
 
     @property
+    def show_value(self):
+        return self.value.get("show_value", True)
+
+    @property
     def label_size(self):
         if self in [Country.SLOVENIA, Country.JORDAN, Country.LEBANON, Country.ISRAEL, Country.PALESTINE]:
             return 11
@@ -540,13 +553,13 @@ class Country(Enum):
         if self == Country.ANDORRA:
             return 3752269, 2181585
         if self == Country.LIECHTENSTEIN:
-            return 4500000, 2600000
+            return 4380000, 2650000
         if self == Country.MONACO:
-            return 5800000, 2500000
+            return 4111356, 2333007
         if self == Country.MALTA:
-            return 5800000, 2200000
+            return 4890000, 1450000
         if self == Country.SAN_MARINO:
-            return 5800000, 2400000
+            return 4500000, 2350000
         if self == Country.AUSTRIA:
             return 4670000, 2700000
         if self == Country.SWITZERLAND:
@@ -592,7 +605,7 @@ class Country(Enum):
         if self == Country.PALESTINE:
             return -5500000, 1821409
         if self == Country.MALDIVES:
-            return -3000000, -1900000
+            return -3000000, -2100000
         if self == Country.OMAN:
             return -4550000, -280000
         if self == Country.IRAQ:
