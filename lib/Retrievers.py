@@ -7,7 +7,7 @@ from lib.Country import names_to_iso3, names_to_iso2
 
 class DebtRetrieval(AbstractDataRetriever):
 
-    def __init__(self, data_name, is_rate=False, min_year_range=None, max_year_range=None):
+    def __init__(self, data_name, *,  is_rate=False, min_year_range=None, max_year_range=None):
         super().__init__(
             is_rate=is_rate,
             min_year_range=min_year_range or [1995],
@@ -18,13 +18,13 @@ class DebtRetrieval(AbstractDataRetriever):
         self.min_year = 1995
         self.max_year = 2024
 
-    def retrieve(self, countries):
+    def retrieve(self, region):
         csv_path = "data/debt.csv"
         data = pd.read_csv(csv_path)
 
         data = data.replace("no data", np.nan)
 
-        data = data[data['country'].isin([country.name for country in countries])]
+        data = data[data['country'].isin([country.name for country in region.countries])]
 
         data = data.melt(id_vars=['country'], var_name='year', value_name='debt')
         data['year'] = data['year'].astype(int)
@@ -38,9 +38,9 @@ class DebtRetrieval(AbstractDataRetriever):
         data = data[(data['year'] == year_from) | (data['year'] == year_to)]
 
         data['debt'] = pd.to_numeric(data['debt'].str.replace(',', '.', regex=False), errors='coerce')
-        return self._format(data, "debt"), year_from, year_to
+        return self._format(data=data, data_column="debt", region=region), year_from, year_to
 
-    def customize_plot(self, bbox, ax, fig):
+    def customize_plot(self, *, region, bbox, ax, fig):
         return ax, fig
 
 

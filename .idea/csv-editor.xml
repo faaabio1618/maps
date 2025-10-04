@@ -10,7 +10,14 @@
             </Attribute>
           </value>
         </entry>
-        <entry key="\data\cache\wb_EG.USE.ELEC.KH.PC.csv">
+        <entry key="\data\cache\wb_EG.USE.PCAP.KG.OE.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\data\cache\wb_NY.ADJ.NNTY.PC.KD.csv">
           <value>
             <Attribute>
               <option name="separator" value="," />
@@ -32,6 +39,13 @@
           </value>
         </entry>
         <entry key="\data\cache\wb_SH.MED.PHYS.ZS.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\data\cache\wb_SL.GDP.PCAP.EM.KD.csv">
           <value>
             <Attribute>
               <option name="separator" value="," />

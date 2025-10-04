@@ -1,6 +1,6 @@
 import abc
 import os
-from typing import List, Tuple
+from typing import Tuple
 
 import cmocean
 import geopandas as gpd
@@ -10,26 +10,23 @@ import requests
 from matplotlib import pyplot as plt
 from matplotlib.colors import TwoSlopeNorm
 
-from lib.Country import Country
+NA_LABEL = "//"
 
 
 class AbstractDataRetriever(abc.ABC):
     """Abstract base class for data retrieval classes."""
 
-    def __init__(self, *, data_name, source, is_rate=False, min_year_range=None, max_year_range=None, round=2):
-        if max_year_range is None:
-            max_year_range = [2019, 2024]
-        if min_year_range is None:
-            min_year_range = [1990, 1996]
+    def __init__(self, *, data_name, source, is_rate=False, min_year_range=None, max_year_range=None, round=2,
+                 ):
         self.data_name = data_name
         self.is_rate = is_rate
-        self.min_year_range = min_year_range
-        self.max_year_range = max_year_range
+        self.min_year_range = min_year_range or [1990, 1996]
+        self.max_year_range = max_year_range or [2019, 2024]
         self.round = round
         self.source = source
 
     @abc.abstractmethod
-    def retrieve(self, countries: List[Country]) -> Tuple[pd.DataFrame, int, int]:
+    def retrieve(self, region) -> Tuple[pd.DataFrame, int, int]:
         pass
 
     @staticmethod
@@ -47,54 +44,68 @@ class AbstractDataRetriever(abc.ABC):
             return AbstractDataRetriever.__get_maps(iso3)
 
     @abc.abstractmethod
-    def customize_plot(self, bbox, ax, fig):
+    def customize_plot(self, *, region, bbox, ax, fig):
         pass
 
-    def good_years(self, data, data_column) -> Tuple[int, int]:
+    def good_years(self, *, data, data_column, region) -> Tuple[int, int]:
         res = []
-        for r, fun in [(self.min_year_range, min), (self.max_year_range, max)]:
-            counts = {}
-            for year in range(r[0], r[1] + 1):
-                if year in data['year'].values:
-                    counts[year] = data[data['year'] == year][data_column].count()
-            if len(counts) == 0:
-                raise ValueError(f"No data found for any year in range {r}")
+        # keep only countries in the region
+        data = data[data['iso_a3'].isin([country.iso3 for country in region.countries])]
+        # remove nan
+        data = data[data[data_column].notna()]
+        counts = {}
+        for min_year in range(self.min_year_range[0], self.min_year_range[1] + 1):
+            for max_year in range(self.max_year_range[0], self.max_year_range[1] + 1):
+                data_filtered = data[(data['year'] == min_year) | (data['year'] == max_year)]
+                data_filtered = data_filtered.groupby('iso_a3').filter(lambda x: len(x) == 2)
+                counts[(min_year, max_year)] = len(data_filtered['iso_a3'].unique())
 
-            max_value = max(counts.values())
-            good_years = [year for year, count in counts.items() if count == max_value]
-            res.append(fun(good_years))
-        return res[0], res[1]
+        max_count = max(counts.values())
+        good_ranges = [k for k, v in counts.items() if v == max_count]
+        # choose the widest range
+        return max(good_ranges, key=lambda x: x[1] - x[0])
 
-    def plot(self, force=False):
+    def _file_name(self, *, year_from, year_to, region):
+        return f"outputs/{region.name}/{year_from}/{year_to}/{self.data_name}.png"
 
-        countries = Country.all()
-        data, year_from, year_to = self.retrieve(countries)
+    def plot(self, region, force=False):
+
+        data, year_from, year_to = self.retrieve(region)
         # check if file exists
+        filename = self._file_name(year_from=year_from, year_to=year_to, region=region)
         if not force:
-            if os.path.exists(f"outputs/{year_from}/{year_to}/{self.data_name}.png"):
-                print(f"File outputs/{year_from}/{year_to}/{self.data_name}.png already exists, skipping...")
+            if os.path.exists(filename):
+                print(f"{filename} already exists, skipping...")
                 return
         file = "maps/ne_110m_admin_0_countries.zip"
-        europe = gpd.read_file(file)
-        europe = europe.to_crs(3035)
-        data = data[['iso_a3', '%_change']]
+        region_map = gpd.read_file(file)
+        region_map = region_map.to_crs(region.crs)
+        data_label = 'data'
+        data = data[['iso_a3', data_label]]
         for iso3 in data['iso_a3'].unique():
             # we don't like naciscdn borders
             geometry = AbstractDataRetriever.__get_maps(iso3)
-            geometry = geometry.to_crs(3035)
-            europe.loc[europe['ADM0_A3'] == iso3, 'geometry'] = geometry["geometry"][0]
+            geometry = geometry.to_crs(region_map.crs)
+            region_map.loc[region_map['ADM0_A3'] == iso3, 'geometry'] = geometry["geometry"][0]
 
-        data = europe.merge(data, left_on='ADM0_A3', right_on='iso_a3', how='right')
+        disputed_territories = gpd.read_file("maps/ne_10m_admin_0_disputed_areas.zip")
+        disputed_territories = disputed_territories.to_crs(region.crs)
+        # filter by SOV_A3
+        disputed_territories = disputed_territories[disputed_territories['ADM0_A3_FR'].isin(region.iso3_list)]
+
+        data = region_map.merge(data, left_on='ADM0_A3', right_on='iso_a3', how='right')
+
         gdf = gpd.GeoDataFrame(data, geometry='geometry')
 
-        minx = 2600000
-        maxx = 7700000
-        miny = 1440000
-        maxy = 5500000
+        minx = region.map_limits["minx"]
+        maxx = region.map_limits["maxx"]
+        miny = region.map_limits["miny"]
+        maxy = region.map_limits["maxy"]
 
         gdf = gdf.cx[minx:maxx, miny:maxy]
 
         data_aspect = (maxy - miny) / (maxx - minx)
+        dpi = 300
         fig_w = 12
         fig_h = fig_w * data_aspect
         fig, ax = plt.subplots(1, 1, figsize=(fig_w, fig_h))
@@ -105,7 +116,9 @@ class AbstractDataRetriever(abc.ABC):
         ax.set_yticks([])
         ax.margins(1)
 
-        vals = gdf['%_change'].to_numpy(dtype=float)  # we center at 0
+        # roi = roi = gpd.GeoDataFrame(geometry=[box(66, 22, 100, 39)], crs=region.cr
+        disputed_territories.plot(ax=ax, facecolor="darkgray", edgecolor="white", hatch="///", linewidth=0)
+        vals = gdf[data_label].to_numpy(dtype=float)  # we center at 0
         min_value = np.nanmin(vals)
         max_value = np.nanmax(vals)
         maxabs = np.nanpercentile(np.abs(vals), 92)
@@ -115,35 +128,45 @@ class AbstractDataRetriever(abc.ABC):
         if vmin == 0:
             vcenter = 0.1
         norm = TwoSlopeNorm(vmin=vmin, vcenter=vcenter, vmax=maxabs)
-        gdf.plot(column='%_change', ax=ax, legend=False, cmap=cmocean.cm.delta, norm=norm,
+        schema = cmocean.cm.curl_r
+        gdf.plot(column=data_label, ax=ax, legend=False, cmap=schema, norm=norm,
                  linewidth=0.5, edgecolor="0.7", antialiased=True,
-                 missing_kwds={"color": "#e0e0e0", "edgecolor": "0.4", "label": "///"})
+                 missing_kwds={"color": "#e0e0e0", "edgecolor": "0.4", "label": NA_LABEL})
 
-        for x, y, label, country in zip(gdf.geometry.centroid.x, gdf.geometry.centroid.y,
-                                        gdf['%_change'].astype(str), gdf["iso_a3"]):
-
-            value = np.nan if label == "nan" else float(label)
+        for country_obj in region.countries:
+            country = country_obj.iso3
+            x, y = country_obj.label_coords(region)
+            row = data.loc[data["iso_a3"] == country].iloc[0]
+            if not x or not y:
+                x, y = row.geometry.centroid.x, row.geometry.centroid.y
+            label = row[data_label]
+            value = np.nan if label == "nan" or np.isnan(label) else float(label)
             # print(f"{country}: {value} {x} {y}")
 
-            if self.round == 0 and label != "nan":
+            if self.round == 0 and not np.isnan(label):
                 label = str(int(value))
-            country_obj = Country.get_by_iso3(country)
-            custom_x, custom_y = country_obj.label_coords
+            custom_x, custom_y = country_obj.label_coords(region)
             if custom_x and custom_y:
                 x, y = custom_x, custom_y
 
-            if label == "nan":
-                label = "///"
+            label = str(label)
+            if np.isnan(value):
+                label = NA_LABEL
             else:
                 if float(label) > 0:
                     label = "+" + label
+                elif float(label) < 0:
+                    # use true minus sign
+                    label = "−" + label[1:]
                 if not self.is_rate:
                     label = f"{label}%"
 
+            #  label = country_obj.iso3
+            # print(f'{country} {x} {y}')
             number_of_digits = len(str(value))
             font_size = country_obj.label_size - number_of_digits + self.round
             # if color is very dark, use white font
-            bbox = {'facecolor': 'black', 'edgecolor': 'none', 'boxstyle': 'round,pad=0.2', 'alpha': 0.7}
+            bbox = {'facecolor': 'black', 'edgecolor': 'none', 'boxstyle': 'round,pad=0.2', 'alpha': 0.8}
             font_color = "white"
             if value == min_value or value == max_value:
                 # make a bigger border
@@ -153,54 +176,63 @@ class AbstractDataRetriever(abc.ABC):
 
             ax.text(x, y, label, fontsize=font_size, ha='center', va='center',
                     color=font_color, alpha=1,
-                    bbox=None if label == "///" else bbox)
+                    bbox=None if label == NA_LABEL else bbox)
 
-        ax.set_title(f"{self.data_name}{' (change in %)' if not self.is_rate else ''}:  {year_from}→{year_to}", fontsize=16,)
+        ax.set_title(f"{self.data_name}{' (change in %)' if not self.is_rate else ''}:  {year_from}→{year_to}",
+                     fontsize=18)
         fig.tight_layout()
+        xy, ha, va = region.source_position
         ax.annotate(
             f"Source: {self.source}",
-            va="top",
-            xy=(0.035, 0.95), xycoords='figure fraction',
-            ha="left", fontsize=10, color="black", alpha=0.8,
-        bbox = {'facecolor': 'yellow', 'edgecolor': 'orange', 'boxstyle': 'round,pad=0.3', 'alpha': 0.9}
+            va=va,
+            xy=xy, xycoords='figure fraction',
+            ha=ha, fontsize=9, color="black", alpha=0.8,
+            bbox={'facecolor': 'yellow', 'edgecolor': 'orange', 'boxstyle': 'round,pad=0.3', 'alpha': 0.9}
         )
 
+        xy, ha, va = region.attribution_position
         ax.annotate(
             f"Graphics by u/fabio1618",
-            xy=(0.965, 0.03), xycoords='figure fraction',
-            ha="right", fontsize=8, color="black", alpha=0.8,
-            bbox = {'facecolor': "white", 'edgecolor': 'orange', 'boxstyle': 'round,pad=0.3', 'alpha': 0.9}
+            xy=xy, xycoords='figure fraction',
+            ha=ha, fontsize=8, color="black", alpha=0.8,
+            va=va,
+            bbox={'facecolor': "white", 'edgecolor': 'orange', 'boxstyle': 'round,pad=0.3', 'alpha': 0.9}
         )
 
         ax, fig = self.customize_plot(bbox={'facecolor': 'white', 'edgecolor': 'none', 'boxstyle': 'round,pad=0.2',
-                                            'alpha': 0.5}, ax=ax, fig=fig)
-        # mkdir outputs/yearfrom/yearto
-        os.makedirs(f"outputs/{year_from}/{year_to}", exist_ok=True)
-        fig.savefig(f"outputs/{year_from}/{year_to}/{self.data_name}.png", dpi=300)
+                                            'alpha': 0.5}, ax=ax, fig=fig, region=region)
+        os.makedirs(os.path.dirname(filename), exist_ok=True)
+        fig.savefig(filename, dpi=dpi)
 
-    def _format(self, data, data_column):
+    def _format(self, *, data, data_column, region):
         # add missing countries
-        missing_countries = [country for country in Country.all() if country.iso3 not in data['iso_a3'].values]
+        countries = region.countries
+        year_from = min(data['year'].values)
+        year_to = max(data['year'].values)
+        missing_countries = [country for country in countries if country.iso3 not in data['iso_a3'].values]
         for country in missing_countries:
             if country:
                 data = pd.concat([data, pd.DataFrame({
                     'iso_a3': [country.iso3],
-                    'year': [self.min_year_range[0]],
+                    'year': [year_from],
                     data_column: [np.nan]
                 })], ignore_index=True)
+
+        # remove countries not in the region
+        data = data[data['iso_a3'].isin([country.iso3 for country in countries])]
+
         data = data.pivot(index='iso_a3', columns='year', values=data_column)
-        year_from = min(data.columns)
-        year_to = max(data.columns)
         data.columns = [f"{year}_{data_column}" for year in data.columns]
         data.reset_index(inplace=True)
         data['year_from'] = year_from
         data['year_to'] = year_to
         data['diff'] = data[f"{year_to}_{data_column}"] - data[f"{year_from}_{data_column}"]
+        data_label = 'data'
         if self.is_rate:
-            data['%_change'] = data['diff']
+            data[data_label] = data['diff']
         else:
-            data['%_change'] = (data[f"{year_to}_{data_column}"] / data[f"{year_from}_{data_column}"] - 1) * 100
-            data['%_change'] = data['%_change'].replace(np.inf, np.nan)
-            data['%_change'] = data['%_change'].replace(-np.inf, np.nan)
+            data[data_label] = (data[f"{year_to}_{data_column}"] / data[f"{year_from}_{data_column}"] - 1) * 100
+            data[data_label] = data[data_label].replace(np.inf, np.nan)
+            data[data_label] = data[data_label].replace(-np.inf, np.nan)
         data = data.round(self.round)
         return data
