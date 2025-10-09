@@ -1,10 +1,9 @@
-from lib.Region import Region
+from lib.Map import Map
 
 
 def main():
-    for region in [Region.EUROPE, Region.ASIA]:
-        for retriever in region.retrievers:
-            retriever.plot(region=region)
+    for region in [Map.EUROPE, Map.ASIA]:
+        region.to_reddit()
 
 
 if __name__ == '__main__':

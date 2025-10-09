@@ -9,11 +9,14 @@ class DebtRetrieval(AbstractDataRetriever):
 
     def __init__(self, data_name, *,  is_rate=False, min_year_range=None, max_year_range=None):
         super().__init__(
-            is_rate=is_rate,
+            keep_unit=is_rate,
             min_year_range=min_year_range or [1995,1995],
             max_year_range=max_year_range or [2024,2024],
+            unit = "%",
             data_name=data_name,
             round=0,
+            show_final=True,
+            description="Total stock of debt liabilities issued by the central government as a share of GDP.",
             source="https://www.imf.org/external/datamapper/CG_DEBT_GDP@GDD")
         self.min_year = 1995
         self.max_year = 2024
@@ -38,10 +41,7 @@ class DebtRetrieval(AbstractDataRetriever):
         data = data[(data['year'] == year_from) | (data['year'] == year_to)]
 
         data['debt'] = pd.to_numeric(data['debt'].str.replace(',', '.', regex=False), errors='coerce')
-        return self._format(data=data, data_column="debt", region=region), year_from, year_to
-
-    def customize_plot(self, *, region, bbox, ax, fig):
-        return ax, fig
+        return data, 'debt'
 
 
 # class AverageSalary(AbstractDataRetriever):

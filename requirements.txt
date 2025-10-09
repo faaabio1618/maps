@@ -4,3 +4,4 @@ setuptools
 geopandas
 matplotlib
 cmocean
+kagglehub

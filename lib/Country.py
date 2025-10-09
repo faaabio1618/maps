@@ -1,4 +1,5 @@
 from enum import Enum
+from functools import lru_cache
 
 
 class Country(Enum):
@@ -487,6 +488,7 @@ class Country(Enum):
     }
 
     @staticmethod
+    @lru_cache(maxsize=None)
     def get_by_iso2(iso2):
         for country in Country:
             if country.iso2 == iso2:
@@ -494,6 +496,7 @@ class Country(Enum):
         return None
 
     @staticmethod
+    @lru_cache(maxsize=None)
     def get_by_iso3(iso3):
         for country in Country:
             if country.iso3 == iso3:
@@ -501,6 +504,7 @@ class Country(Enum):
         return None
 
     @staticmethod
+    @lru_cache(maxsize=None)
     def get_by_name(name):
         for country in Country:
             if country.name == name:
@@ -532,20 +536,21 @@ class Country(Enum):
         if self in [Country.SLOVENIA, Country.JORDAN, Country.LEBANON, Country.ISRAEL, Country.PALESTINE]:
             return 11
         if self in [Country.NORTH_MACEDONIA, Country.CROATIA, Country.KOSOVO, Country.ALBANIA, Country.LUXEMBOURG,
-                    Country.SYRIA, Country.BAHRAIN, Country.QATAR]:
+                    Country.SYRIA]:
             return 12
         if self in [Country.SERBIA, Country.ESTONIA, Country.NETHERLANDS, Country.BOSNIA_HERZEGOVINA,
                     Country.DENMARK, Country.MONTENEGRO]:
             return 13
         return 15
 
+    @lru_cache(maxsize=None)
     def label_coords(self, region=None):
-        from lib.Region import Region
+        from lib.Region import Map
         if self == Country.RUSSIA:
-            if region == Region.EUROPE:
+            if region == Map.EUROPE:
                 return 6400000, 4300000
-            if region == Region.ASIA:
-                return 100067, 3300000
+            if region == Map.ASIA:
+                return 100067, 3000000
             else:
                 return 6400000, 4300000
         if self == Country.ALBANIA:
@@ -587,13 +592,13 @@ class Country(Enum):
         if self == Country.NORWAY:
             return 4300000, 4200000
         if self == Country.AZERBAIJAN:
-            if region == Region.ASIA:
+            if region == Map.ASIA:
                 return -4000000, 2004236
             return None, None
         if self == Country.KAZAKHSTAN:
-            if region == Region.EUROPE:
+            if region == Map.EUROPE:
                 return 7359144, 3800000
-            if region == Region.ASIA:
+            if region == Map.ASIA:
                 return None, None
             return 7359144, 3800000
         if self == Country.BAHRAIN:
@@ -605,7 +610,7 @@ class Country(Enum):
         if self == Country.PALESTINE:
             return -5500000, 1821409
         if self == Country.MALDIVES:
-            return -3000000, -2100000
+            return -3000000, -2200000
         if self == Country.OMAN:
             return -4550000, -280000
         if self == Country.IRAQ:
@@ -651,13 +656,22 @@ exceptions = {
     "Timor-Leste": Country.EAST_TIMOR,
     "Viet Nam": Country.VIETNAM,
     "Yemen, Rep.": Country.YEMEN,
+    "Yemen Arab Republic": Country.YEMEN,
+    "UAE": Country.UNITED_ARAB_EMIRATES,
+    "Bosnia-Herzegovina": Country.BOSNIA_HERZEGOVINA,
     "Syrian Arab Republic": Country.SYRIA,
     "Korea, Dem. People's Rep.": Country.NORTH_KOREA,
+    "Korea, Republic of" : Country.SOUTH_KOREA,
+    "Taiwan Province of China" : Country.TAIWAN,
+    "Türkiye, Republic of" : Country.TURKEY,
+    "North Macedonia ": Country.NORTH_MACEDONIA,
     "Egypt, Arab Rep.": Country.EGYPT
 
 }
 
 
+
+@lru_cache(maxsize=None)
 def names_to_iso3(name):
     try:
         return Country.get_by_name(name).iso3
@@ -668,6 +682,7 @@ def names_to_iso3(name):
         return None
 
 
+@lru_cache(maxsize=None)
 def names_to_iso2(name):
     try:
         return Country.get_by_name(name).iso2
