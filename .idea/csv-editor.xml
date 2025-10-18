@@ -3,6 +3,13 @@
   <component name="CsvFileAttributes">
     <option name="attributeMap">
       <map>
+        <entry key="\data\alcohol.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="\data\cache\Americas\wb_FP.CPI.TOTL.ZG.csv">
           <value>
             <Attribute>
@@ -312,6 +319,13 @@
           </value>
         </entry>
         <entry key="\data\cache\Europe\wb_VC.IHR.PSRC.P5.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\data\cache\Oceania\wb_SH.ALC.PCAP.LI.csv">
           <value>
             <Attribute>
               <option name="separator" value="," />

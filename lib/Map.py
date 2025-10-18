@@ -5,6 +5,7 @@ import shutil
 import numpy as np
 
 from lib.Country import Country
+from lib.retriever.AlcoholRetriever import AlcoholRetriever
 from lib.retriever.ComposedDataRetriever import ComposedDataRetriever
 from lib.retriever.CumulativeImmigration import CumulativeImmigration
 from lib.retriever.CumulativeInflation import CumulativeInflation
@@ -25,6 +26,7 @@ refugee_by_population = ComposedDataRetriever(data_name="Refugees per 1000 peopl
                                               function=lambda x, y: x / y * 1000 if not np.isnan(x) and not np.isnan(
                                                   y) and y != 0 else np.nan, )
 alchool = WorldBankDataRetriever("SH.ALC.PCAP.LI", min_year_range=[2000, 2001], unit="litre of pure alcohol per year")
+alchool2 = AlcoholRetriever()
 taxRevenue = WorldBankDataRetriever("GC.TAX.TOTL.GD.ZS", keep_unit=True, round=1)
 inflation = CumulativeInflation()
 debtRetriever = KaggleDebtRetriever()
@@ -357,6 +359,7 @@ class Map(Enum):
     EUROPE = {
         "name": "Europe",
         "retrievers": [
+            alchool2,
             inflation,
             debtRetriever,
             fossil_fuel,

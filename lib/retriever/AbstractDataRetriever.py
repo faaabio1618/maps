@@ -22,7 +22,7 @@ YELLOW = "#fceaa9"
 
 def human_format(num: float):
     magnitude = 0
-    rounding = 0 if 100 < num < 10 ** 9 else 1
+    rounding = 0 if 100 < abs(num) < 10 ** 9 else 1
     while abs(num) >= 1000 and magnitude < 4:
         magnitude += 1
         num /= 1000.0
