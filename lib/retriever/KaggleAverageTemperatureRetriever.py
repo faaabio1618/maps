@@ -1,12 +1,9 @@
-import os
 from typing import Tuple
 
-import kagglehub
 import pandas as pd
-from kagglehub import KaggleDatasetAdapter
 
 from lib.Country import Country
-from lib.KaggleRetriever import KaggleRetriever
+from lib.retriever.KaggleRetriever import KaggleRetriever
 
 
 class KaggleAverageTemperatureRetriever(KaggleRetriever):

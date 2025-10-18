@@ -2,7 +2,7 @@ from typing import Tuple
 
 import pandas as pd
 
-from lib.AbstractDataRetriever import AbstractDataRetriever
+from lib.retriever.AbstractDataRetriever import AbstractDataRetriever
 
 
 class ComposedDataRetriever(AbstractDataRetriever):
@@ -21,7 +21,7 @@ class ComposedDataRetriever(AbstractDataRetriever):
             show_final=show_final,
             unit=unit,
             data_name=data_name,
-            source=f'{retriever_1.source}\n{retriever_2.source}'
+            source=f'{retriever_1.source}\nSource: {retriever_2.source}'
         )
         self.retriever_1 = retriever_1
         self.retriever_2 = retriever_2

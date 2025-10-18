@@ -5,9 +5,8 @@ from typing import Tuple
 
 import kagglehub
 import pandas as pd
-from kagglehub import KaggleDatasetAdapter
 
-from lib.AbstractDataRetriever import AbstractDataRetriever
+from lib.retriever.AbstractDataRetriever import AbstractDataRetriever
 
 
 class KaggleRetriever(AbstractDataRetriever, ABC):

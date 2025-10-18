@@ -4,14 +4,15 @@ import shutil
 
 import numpy as np
 
-from lib.ComposedDataRetriever import ComposedDataRetriever
 from lib.Country import Country
-from lib.CumulativeInflation import CumulativeInflation
-from lib.EconomicFreedomRetriever import EconomicFreedomRetriever
-from lib.KaggleAverageTemperatureRetriever import KaggleAverageTemperatureRetriever
-from lib.KaggleDebtRetriever import KaggleDebtRetriever
-from lib.KaggleTourismRetriever import KaggleTourismRetriever
-from lib.WorldBankDataRetriever import WorldBankDataRetriever, dict_indicators
+from lib.retriever.ComposedDataRetriever import ComposedDataRetriever
+from lib.retriever.CumulativeImmigration import CumulativeImmigration
+from lib.retriever.CumulativeInflation import CumulativeInflation
+from lib.retriever.EconomicFreedomRetriever import EconomicFreedomRetriever
+from lib.retriever.KaggleAverageTemperatureRetriever import KaggleAverageTemperatureRetriever
+from lib.retriever.KaggleDebtRetriever import KaggleDebtRetriever
+from lib.retriever.KaggleTourismRetriever import KaggleTourismRetriever
+from lib.retriever.WorldBankDataRetriever import WorldBankDataRetriever, dict_indicators
 
 pyhsicians = WorldBankDataRetriever("SH.MED.PHYS.ZS", alternative_name="Physicians per 1000 people")
 gdp_per_capita = WorldBankDataRetriever("NY.GDP.PCAP.CD")
@@ -24,6 +25,7 @@ refugee_by_population = ComposedDataRetriever(data_name="Refugees per 1000 peopl
                                               function=lambda x, y: x / y * 1000 if not np.isnan(x) and not np.isnan(
                                                   y) and y != 0 else np.nan, )
 alchool = WorldBankDataRetriever("SH.ALC.PCAP.LI", min_year_range=[2000, 2001], unit="litre of pure alcohol per year")
+taxRevenue = WorldBankDataRetriever("GC.TAX.TOTL.GD.ZS", keep_unit=True, round=1)
 inflation = CumulativeInflation()
 debtRetriever = KaggleDebtRetriever()
 fossil_fuel = WorldBankDataRetriever("EG.USE.COMM.FO.ZS", keep_unit=True, round=1)
@@ -33,14 +35,102 @@ birth_rate = WorldBankDataRetriever("SP.DYN.CBRT.IN", keep_unit=True)
 life_expectancy = WorldBankDataRetriever("SP.DYN.LE00.IN", keep_unit=True)
 popover65 = WorldBankDataRetriever("SP.POP.65UP.TO.ZS", keep_unit=True, round=1)
 population = WorldBankDataRetriever("SP.POP.TOTL")
+migration = CumulativeImmigration()
+migration_by_population = ComposedDataRetriever(data_name="Net Migration per 1000 people",
+                                                retriever_1=migration,
+                                                retriever_2=population, round=0, is_rate=True,
+                                                unit="per 1000 people",
+                                                description=dict_indicators["SM.POP.NETM"].get("sourceNote"),
+                                                function=lambda x, y: x / y * 1000 if not np.isnan(x) and not np.isnan(
+                                                    y) and y != 0 else np.nan, )
 temperature_retriever = KaggleAverageTemperatureRetriever()
 tourism_retriever = KaggleTourismRetriever()
 freedom_retriever = EconomicFreedomRetriever()
 homicides = WorldBankDataRetriever("VC.IHR.PSRC.P5", min_year_range=[1990, 2002])
 militar_expenses = WorldBankDataRetriever("MS.MIL.XPND.GD.ZS", keep_unit=True, round=1)
 
+netNationalIncome = WorldBankDataRetriever("NY.ADJ.NNTY.PC.KD")
+
 
 class Map(Enum):
+    AMERICAS = {
+        "name": "Americas",
+        "retrievers": [
+            population,
+            homicides,
+            life_expectancy,
+            alchool,
+            gdp_per_capita,
+            # taxRevenue,
+            CumulativeInflation(min_year_range=[2000, 2000]),
+            debtRetriever,
+            # fossil_fuel,
+            # energy_use_per_capita,
+            labor_force,
+            birth_rate,
+            popover65,
+            pyhsicians,
+            gdp_per_employed,
+            refugee_by_population,
+            migration,
+            migration_by_population,
+            temperature_retriever,
+            tourism_retriever,
+            freedom_retriever,
+            militar_expenses,
+            netNationalIncome,
+        ],
+        "crs": "+proj=laea +lat_0=10 +lon_0=-60 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_defs",
+        "legends": {
+            "rank": "right",
+            "rank_inset": True,
+            "description": [(0.035, 0.0), "left", "bottom"],
+            "source": [(0.0, 0.0), "left", "bottom"],
+            "attribution": [(0.0, 1.0), "left", "top"]
+        },
+        "map_limits": {
+            "minx": -5500000,
+            "maxx": 2800000,
+            "miny": -6700000,
+            "maxy": 8100000
+        },
+        "countries": [
+            # Country.ANTIGUA_BARBUDA,
+            # Country.BARBADOS,
+            # Country.FRANCE,
+            # Country.SAINT_LUCIA,
+            Country.ARGENTINA,
+            Country.BAHAMAS,
+            Country.BELIZE,
+            Country.BOLIVIA,
+            Country.BRAZIL,
+            Country.CANADA,
+            Country.CHILE,
+            Country.COLOMBIA,
+            Country.COSTA_RICA,
+            Country.CUBA,
+            Country.DOMINICAN_REPUBLIC,
+            Country.ECUADOR,
+            Country.EL_SALVADOR,
+            Country.FRENCH_GUYANA,
+            Country.GUATEMALA,
+            Country.GUYANA,
+            Country.HAITI,
+            Country.HONDURAS,
+            Country.JAMAICA,
+            Country.MEXICO,
+            Country.NICARAGUA,
+            Country.PANAMA,
+            Country.PARAGUAY,
+            Country.PERU,
+            Country.PUERTO_RICO,
+            Country.SURINAME,
+            Country.TRINIDAD_TOBAGO,
+            Country.UNITED_STATES,
+            Country.URUGUAY,
+            Country.VENEZUELA,
+        ]
+    }
     ASIA = {
         "retrievers": [
             population,
@@ -49,6 +139,7 @@ class Map(Enum):
             # fossil_fuel,
             energy_use_per_capita,
             militar_expenses,
+            migration_by_population,
             debtRetriever,
             freedom_retriever,
             alchool,
@@ -129,6 +220,140 @@ class Map(Enum):
             Country.RUSSIA,
         ]}
 
+    OCEANIA = {
+        "name": "Oceania",
+        "retrievers": [
+            population,
+            gdp_per_capita,
+            life_expectancy,
+            alchool,
+            labor_force,
+            gdp_per_employed,
+            pyhsicians,
+            birth_rate,
+            migration_by_population
+        ],
+        "crs": "+proj=eqearth +lon_0=160 +datum=WGS84 +units=m +no_defs",
+        "legends": {
+            "rank": "left",
+            "rank_inset": True,
+            "description": [(0.035, 0.0), "left", "bottom"],
+            "source": [(1.0, 0.0), "right", "bottom"],
+            "attribution": [(1.0, 1.0), "right", "top"]
+        },
+        "map_limits": {
+            "minx": -4400000,
+            "maxx": 3200000,
+            "miny": -5800000,
+            "maxy": 480000
+        },
+        "countries": [
+            Country.AUSTRALIA,
+            Country.NEW_ZEALAND,
+            Country.FIJI,
+            Country.PAPUA_NEW_GUINEA,
+            Country.SOLOMON_ISLANDS,
+            Country.VANUATU,
+            Country.SAMOA,
+            Country.TONGA,
+            Country.MICRONESIA,
+            Country.KIRIBATI,
+            Country.INDONESIA,
+            Country.NEW_CALEDONIA,
+            Country.FRENCH_POLYNESIA,
+            Country.GUAM,
+            Country.NAURU,
+            Country.PALAU,
+            Country.MARSHALL_ISLANDS,
+            Country.TUVALU,
+            Country.AMERICAN_SAMOA,
+            Country.NORTHERN_MARIANA_ISLANDS,
+        ]
+    }
+
+    AFRICA = {
+        "name": "Africa",
+        "retrievers": [
+            population,
+            migration_by_population
+        ],
+        "crs": "+proj=laea +lat_0=7 +lon_0=20 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_defs",
+        "legends": {
+            "rank": "right",
+            "rank_inset": True,
+            "description": [(1, 0.0), "right", "bottom"],
+            "source": [(0, 0.0), "left", "bottom"],
+            "attribution": [(0, 1.0), "left", "top"]
+        },
+        "map_limits": {
+            "minx": -3.99e6,
+            "maxx": 4.08e6,
+            "miny": -4.82e6,
+            "maxy": 3.5e6
+        },
+        "countries": [
+            Country.ALGERIA,
+            Country.ANGOLA,
+            Country.BENIN,
+            Country.BOTSWANA,
+            Country.BURKINA_FASO,
+            Country.BURUNDI,
+            Country.CABO_VERDE,
+            Country.CAMEROON,
+            Country.CENTRAL_AFRICAN_REPUBLIC,
+            Country.CHAD,
+            Country.CONGO,
+            Country.COSTA_RICA,
+            Country.COTE_DIVOIRE,
+            Country.DEMOCRATIC_REPUBLIC_OF_THE_CONGO,
+            Country.DJIBOUTI,
+            Country.ECUADOR,
+            Country.EGYPT,
+            Country.EQUATORIAL_GUINEA,
+            Country.ERITREA,
+            Country.ETHIOPIA,
+            Country.ESWATINI,
+            Country.GABON,
+            Country.GAMBIA,
+            Country.GHANA,
+            Country.GUINEA,
+            Country.GUINEA_BISSAU,
+            Country.KENYA,
+            Country.LESOTHO,
+
+            Country.LIBERIA,
+            Country.LIBYA,
+            Country.MADAGASCAR,
+            Country.MALAWI,
+            Country.MALI,
+            Country.MAURITANIA,
+            Country.MAURITIUS,
+            Country.MOROCCO,
+            Country.MOZAMBIQUE,
+            Country.NAMIBIA,
+            Country.NIGER,
+            Country.NIGERIA,
+            Country.RWANDA,
+            Country.SAO_TOME_PRINCIPE,
+            Country.SENEGAL,
+            Country.SEYCHELLES,
+            Country.SIERRA_LEONE,
+            Country.SOMALIA,
+            Country.SOUTH_AFRICA,
+            Country.SOUTH_SUDAN,
+            Country.SUDAN,
+            Country.TANZANIA,
+            Country.TOGO,
+            Country.TUNISIA,
+            Country.UGANDA,
+            Country.WESTERN_SAHARA,
+            Country.ZAMBIA,
+            Country.ZIMBABWE,
+            Country.REUNION,
+            Country.MAYOTTE
+        ]
+    }
+
     EUROPE = {
         "name": "Europe",
         "retrievers": [
@@ -136,11 +361,13 @@ class Map(Enum):
             debtRetriever,
             fossil_fuel,
             energy_use_per_capita,
-            WorldBankDataRetriever("GC.TAX.TOTL.GD.ZS", keep_unit=True, round=1),
+            taxRevenue,
             militar_expenses,
-            WorldBankDataRetriever("NY.ADJ.NNTY.PC.KD"),
+            netNationalIncome,
             gdp_per_capita,
             alchool,
+            migration,
+            migration_by_population,
             pyhsicians,
             # arms,
             gdp_per_employed,
@@ -235,7 +462,7 @@ class Map(Enum):
         return self.value["map_limits"]
 
     @property
-    def countries(self):
+    def countries(self) -> list[Country]:
         return self.value["countries"]
 
     @property
@@ -270,10 +497,14 @@ class Map(Enum):
     def rank_position(self):
         return self.value["legends"]["rank"]
 
+    @property
+    def rank_inset(self):
+        return self.value["legends"].get("rank_inset", False)
+
     def to_reddit(self):
         reddit_folder = f"data/reddit/{self.name}"
         os.makedirs(reddit_folder, exist_ok=True)
         for i, ret in enumerate(self.retrievers):
             filename = ret.plot(region=self)
-            padded_i = str(i+1).zfill(2)
+            padded_i = str(i + 1).zfill(2)
             shutil.copy(filename, f"{reddit_folder}/{padded_i}.{ret.data_name}.png")

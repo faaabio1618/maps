@@ -1,5 +1,5 @@
-from lib.Country import Country, names_to_iso3
-from lib.KaggleRetriever import KaggleRetriever
+from lib.Country import names_to_iso3
+from lib.retriever.KaggleRetriever import KaggleRetriever
 
 
 class KaggleDebtRetriever(KaggleRetriever):

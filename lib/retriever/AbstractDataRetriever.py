@@ -28,7 +28,10 @@ def human_format(num: float):
         num /= 1000.0
     num = round(num, rounding)
     suffixes = ['', 'K', 'M', 'B', 'T']
-    num_str = f"{num:.{rounding}f}".rstrip('0').rstrip('.')
+    if rounding == 0:
+        num_str = f"{num:.{rounding}f}"
+    else:
+        num_str = f"{num:.{rounding}f}".rstrip('0').rstrip('.')
     if num_str in ('-0', '-0.0', '0.0'):
         num_str = '0'
     return f"{num_str}{suffixes[magnitude]}"
@@ -267,9 +270,15 @@ class AbstractDataRetriever(abc.ABC):
             max_length_value = max(len(title), max([len(str(final_value)) for final_value in sorted_final_values]))
             final_values = "\n".join(sorted_final_values)
             if side == "left":
-                new_margin = max_length_value * -1 / 1000 * 7
+                if region.rank_inset:
+                    new_margin = 0
+                else:
+                    new_margin = max_length_value * -1 / 1000 * 7
             else:
-                new_margin = 1.03 + (5 * max_length_value) / 1000
+                if region.rank_inset:
+                    new_margin = 1
+                else:
+                    new_margin = 1.03 + (5 * max_length_value) / 1000
 
             year_to_s = str(year_to).center(max_length_value)
             text = f"{year_to_s}\n"

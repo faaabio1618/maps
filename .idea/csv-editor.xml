@@ -3,6 +3,69 @@
   <component name="CsvFileAttributes">
     <option name="attributeMap">
       <map>
+        <entry key="\data\cache\Americas\wb_FP.CPI.TOTL.ZG.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\data\cache\Americas\wb_GC.TAX.TOTL.GD.ZS.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\data\cache\Americas\wb_NY.GDP.PCAP.CD.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\data\cache\Americas\wb_SH.ALC.PCAP.LI.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\data\cache\Americas\wb_SP.DYN.LE00.IN.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\data\cache\Americas\wb_SP.POP.TOTL.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\data\cache\Americas\wb_VC.IHR.PSRC.P5.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\data\cache\Asia\wb_EG.USE.COMM.FO.ZS.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\data\cache\Asia\wb_EG.USE.PCAP.KG.OE.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="\data\cache\Asia\wb_FP.CPI.TOTL.ZG.csv">
           <value>
             <Attribute>
@@ -11,6 +74,13 @@
           </value>
         </entry>
         <entry key="\data\cache\Asia\wb_MS.MIL.XPND.GD.ZS.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\data\cache\Asia\wb_NY.ADJ.NNTY.PC.KD.csv">
           <value>
             <Attribute>
               <option name="separator" value="," />
@@ -31,6 +101,13 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="\data\cache\Asia\wb_NY.GDP.PCAP.PP.KD.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="\data\cache\Asia\wb_SH.ALC.PCAP.LI.csv">
           <value>
             <Attribute>
@@ -45,7 +122,21 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="\data\cache\Asia\wb_SL.GDP.PCAP.EM.KD.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="\data\cache\Asia\wb_SL.TLF.TOTL.IN.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\data\cache\Asia\wb_SM.POP.NETM.csv">
           <value>
             <Attribute>
               <option name="separator" value="," />
@@ -66,6 +157,20 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="\data\cache\Asia\wb_SP.DYN.LE00.IN.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\data\cache\Asia\wb_SP.POP.65UP.TO.ZS.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="\data\cache\Asia\wb_SP.POP.TOTL.csv">
           <value>
             <Attribute>
@@ -73,7 +178,140 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="\data\cache\Asia\wb_VC.IHR.PSRC.P5.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="\data\cache\Europe\wb_EG.USE.COMM.FO.ZS.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\data\cache\Europe\wb_EG.USE.PCAP.KG.OE.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\data\cache\Europe\wb_FP.CPI.TOTL.ZG.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\data\cache\Europe\wb_GC.TAX.TOTL.GD.ZS.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\data\cache\Europe\wb_MS.MIL.XPND.GD.ZS.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\data\cache\Europe\wb_NY.ADJ.NNTY.PC.KD.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\data\cache\Europe\wb_NY.GDP.PCAP.CD.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\data\cache\Europe\wb_NY.GDP.PCAP.KD.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\data\cache\Europe\wb_NY.GDP.PCAP.PP.KD.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\data\cache\Europe\wb_SH.ALC.PCAP.LI.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\data\cache\Europe\wb_SH.MED.PHYS.ZS.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\data\cache\Europe\wb_SL.GDP.PCAP.EM.KD.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\data\cache\Europe\wb_SL.TLF.TOTL.IN.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\data\cache\Europe\wb_SM.POP.RHCR.EA.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\data\cache\Europe\wb_SP.DYN.CBRT.IN.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\data\cache\Europe\wb_SP.DYN.LE00.IN.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\data\cache\Europe\wb_SP.POP.65UP.TO.ZS.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\data\cache\Europe\wb_SP.POP.TOTL.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\data\cache\Europe\wb_VC.IHR.PSRC.P5.csv">
           <value>
             <Attribute>
               <option name="separator" value="," />
@@ -109,6 +347,13 @@
           </value>
         </entry>
         <entry key="\data\cache\kaggle\omkargowda\suicide-rates-overview-1985-to-2021\Suicide per 100.000 people.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\data\cache\kaggle\palinatx\mean-temperature-for-countries-by-year-2014-2022\Mean Annual Temperature (C°).csv">
           <value>
             <Attribute>
               <option name="separator" value="," />

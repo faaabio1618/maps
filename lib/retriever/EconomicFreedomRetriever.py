@@ -3,7 +3,7 @@ import pandas
 
 import pandas as pd
 
-from lib.AbstractDataRetriever import AbstractDataRetriever
+from lib.retriever.AbstractDataRetriever import AbstractDataRetriever
 
 
 class EconomicFreedomRetriever(AbstractDataRetriever):

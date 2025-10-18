@@ -1,8 +1,8 @@
 import numpy as np
 import pandas as pd
 
-from lib.AbstractDataRetriever import AbstractDataRetriever
 from lib.Country import names_to_iso3, names_to_iso2
+from lib.retriever.AbstractDataRetriever import AbstractDataRetriever
 
 
 class DebtRetrieval(AbstractDataRetriever):

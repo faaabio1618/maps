@@ -2,7 +2,7 @@ from typing import Tuple
 
 import pandas as pd
 
-from lib.KaggleRetriever import KaggleRetriever
+from lib.retriever.KaggleRetriever import KaggleRetriever
 
 
 class KaggleTourismRetriever(KaggleRetriever):

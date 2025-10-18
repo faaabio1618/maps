@@ -10,7 +10,7 @@ class Country(Enum):
     }
 
     ANDORRA = {
-        "show_value" : False,
+        "show_value": False,
         "name": "Andorra",
         "iso2": "AD",
         "iso3": "AND",
@@ -237,12 +237,12 @@ class Country(Enum):
     }
     LIECHTENSTEIN = {
         "name": "Liechtenstein",
-        "show_value" : False,
+        "show_value": False,
         "iso2": "LI",
         "iso3": "LIE",
     }
     SAN_MARINO = {
-        "show_value" : False,
+        "show_value": False,
         "name": "San Marino",
         "iso2": "SM",
         "iso3": "SMR",
@@ -471,7 +471,7 @@ class Country(Enum):
         "iso3": "UZB",
     }
     HOLY_SEE = {
-        "show_value" : False,
+        "show_value": False,
         "name": "Holy See",
         "iso2": "VA",
         "iso3": "VAT",
@@ -485,6 +485,564 @@ class Country(Enum):
         "name": "Yemen",
         "iso2": "YE",
         "iso3": "YEM",
+    }
+
+    UNITED_STATES = {
+        "name": "United States",
+        "iso2": "US",
+        "iso3": "USA",
+    }
+    CANADA = {
+        "name": "Canada",
+        "iso2": "CA",
+        "iso3": "CAN",
+    }
+    MEXICO = {
+        "name": "Mexico",
+        "iso2": "MX",
+        "iso3": "MEX",
+    }
+    FRENCH_GUYANA = {
+        "name": "French Guiana",
+        "iso2": "GF",
+        "iso3": "GUF",
+        "territory": True
+    }
+    BRAZIL = {
+        "name": "Brazil",
+        "iso2": "BR",
+        "iso3": "BRA",
+    }
+    ARGENTINA = {
+        "name": "Argentina",
+        "iso2": "AR",
+        "iso3": "ARG",
+    }
+    COLOMBIA = {
+        "name": "Colombia",
+        "iso2": "CO",
+        "iso3": "COL",
+    }
+    VENEZUELA = {
+        "name": "Venezuela",
+        "iso2": "VE",
+        "iso3": "VEN",
+    }
+    PERU = {
+        "name": "Peru",
+        "iso2": "PE",
+        "iso3": "PER",
+    }
+    CHILE = {
+        "name": "Chile",
+        "iso2": "CL",
+        "iso3": "CHL",
+    }
+    BOLIVIA = {
+        "name": "Bolivia",
+        "iso2": "BO",
+        "iso3": "BOL",
+    }
+    PARAGUAY = {
+        "name": "Paraguay",
+        "iso2": "PY",
+        "iso3": "PRY",
+    }
+    URUGUAY = {
+        "name": "Uruguay",
+        "iso2": "UY",
+        "iso3": "URY",
+    }
+    GUYANA = {
+        "name": "Guyana",
+        "iso2": "GY",
+        "iso3": "GUY",
+    }
+    SURINAME = {
+        "name": "Suriname",
+        "iso2": "SR",
+        "iso3": "SUR",
+    }
+    ECUADOR = {
+        "name": "Ecuador",
+        "iso2": "EC",
+        "iso3": "ECU",
+    }
+    PANAMA = {
+        "name": "Panama",
+        "iso2": "PA",
+        "iso3": "PAN",
+    }
+    COSTA_RICA = {
+        "name": "Costa Rica",
+        "iso2": "CR",
+        "iso3": "CRI",
+    }
+    NICARAGUA = {
+        "name": "Nicaragua",
+        "iso2": "NI",
+        "iso3": "NIC",
+    }
+    HONDURAS = {
+        "name": "Honduras",
+        "iso2": "HN",
+        "iso3": "HND",
+    }
+    EL_SALVADOR = {
+        "name": "El Salvador",
+        "iso2": "SV",
+        "iso3": "SLV",
+    }
+    GUATEMALA = {
+        "name": "Guatemala",
+        "iso2": "GT",
+        "iso3": "GTM",
+    }
+    BELIZE = {
+        "name": "Belize",
+        "iso2": "BZ",
+        "iso3": "BLZ",
+    }
+    CUBA = {
+        "name": "Cuba",
+        "iso2": "CU",
+        "iso3": "CUB",
+    }
+    DOMINICAN_REPUBLIC = {
+        "name": "Dominican Republic",
+        "iso2": "DO",
+        "iso3": "DOM",
+    }
+    HAITI = {
+        "name": "Haiti",
+        "iso2": "HT",
+        "iso3": "HTI",
+    }
+    JAMAICA = {
+        "name": "Jamaica",
+        "iso2": "JM",
+        "iso3": "JAM",
+    }
+    TRINIDAD_TOBAGO = {
+        "name": "Trinidad and Tobago",
+        "iso2": "TT",
+        "iso3": "TTO",
+    }
+    BAHAMAS = {
+        "name": "Bahamas",
+        "iso2": "BS",
+        "iso3": "BHS",
+    }
+    PUERTO_RICO = {
+        "name": "Puerto Rico",
+        "iso2": "PR",
+        "iso3": "PRI",
+    }
+    BARBADOS = {
+        "name": "Barbados",
+        "iso2": "BB",
+        "iso3": "BRB",
+    }
+    ANTIGUA_BARBUDA = {
+        "name": "Antigua and Barbuda",
+        "iso2": "AG",
+        "iso3": "ATG",
+    }
+    SAINT_LUCIA = {
+        "name": "Saint Lucia",
+        "iso2": "LC",
+        "iso3": "LCA",
+    }
+
+    AUSTRALIA = {
+        "name": "Australia",
+        "iso2": "AU",
+        "iso3": "AUS",
+    }
+    NEW_ZEALAND = {
+        "name": "New Zealand",
+        "iso2": "NZ",
+        "iso3": "NZL",
+    }
+    FIJI = {
+        "name": "Fiji",
+        "iso2": "FJ",
+        "iso3": "FJI",
+    }
+    PAPUA_NEW_GUINEA = {
+        "name": "Papua New Guinea",
+        "iso2": "PG",
+        "iso3": "PNG",
+    }
+    SOLOMON_ISLANDS = {
+        "name": "Solomon Islands",
+        "iso2": "SB",
+        "iso3": "SLB",
+    }
+    VANUATU = {
+        "name": "Vanuatu",
+        "iso2": "VU",
+        "iso3": "VUT",
+    }
+    SAMOA = {
+        "name": "Samoa",
+        "iso2": "WS",
+        "iso3": "WSM",
+    }
+    TONGA = {
+        "name": "Tonga",
+        "iso2": "TO",
+        "iso3": "TON",
+    }
+    MICRONESIA = {
+        "name": "Micronesia (Federated States of)",
+        "iso2": "FM",
+        "iso3": "FSM",
+    }
+    KIRIBATI = {
+        "name": "Kiribati",
+        "iso2": "KI",
+        "iso3": "KIR",
+    }
+    NEW_CALEDONIA = {
+        "name": "New Caledonia",
+        "iso2": "NC",
+        "iso3": "NCL",
+        "territory": True
+    }
+    FRENCH_POLYNESIA = {
+        "name": "French Polynesia",
+        "iso2": "PF",
+        "iso3": "PYF",
+        "territory": True
+    }
+    GUAM = {
+        "name": "Guam",
+        "iso2": "GU",
+        "iso3": "GUM",
+        "territory": True
+    }
+    NAURU = {
+        "name": "Nauru",
+        "iso2": "NR",
+        "iso3": "NRU",
+    }
+    PALAU = {
+        "name": "Palau",
+        "iso2": "PW",
+        "iso3": "PLW",
+    }
+    MARSHALL_ISLANDS = {
+        "name": "Marshall Islands",
+        "iso2": "MH",
+        "iso3": "MHL",
+    }
+    TUVALU = {
+        "name": "Tuvalu",
+        "iso2": "TV",
+        "iso3": "TUV",
+    }
+    AMERICAN_SAMOA = {
+        "name": "American Samoa",
+        "iso2": "AS",
+        "iso3": "ASM",
+        "territory": True
+    }
+    NORTHERN_MARIANA_ISLANDS = {
+        "name": "Northern Mariana Islands",
+        "iso2": "MP",
+        "iso3": "MNP",
+        "territory": True
+    }
+
+    ALGERIA = {
+        "name": "Algeria",
+        "iso2": "DZ",
+        "iso3": "DZA",
+    }
+    ANGOLA = {
+        "name": "Angola",
+        "iso2": "AO",
+        "iso3": "AGO",
+    }
+    BENIN = {
+        "name": "Benin",
+        "iso2": "BJ",
+        "iso3": "BEN",
+    }
+    BOTSWANA = {
+        "name": "Botswana",
+        "iso2": "BW",
+        "iso3": "BWA",
+    }
+    BURKINA_FASO = {
+        "name": "Burkina Faso",
+        "iso2": "BF",
+        "iso3": "BFA",
+    }
+    BURUNDI = {
+        "name": "Burundi",
+        "iso2": "BI",
+        "iso3": "BDI",
+    }
+    CABO_VERDE = {
+        "name": "Cabo Verde",
+        "iso2": "CV",
+        "iso3": "CPV",
+    }
+    CAMEROON = {
+        "name": "Cameroon",
+        "iso2": "CM",
+        "iso3": "CMR",
+    }
+    CENTRAL_AFRICAN_REPUBLIC = {
+        "name": "Central African Republic",
+        "iso2": "CF",
+        "iso3": "CAF",
+    }
+    CHAD = {
+        "name": "Chad",
+        "iso2": "TD",
+        "iso3": "TCD",
+    }
+    COMOROS = {
+        "name": "Comoros",
+        "iso2": "KM",
+        "iso3": "COM",
+    }
+    CONGO = {
+        "name": "Congo",
+        "iso2": "CG",
+        "iso3": "COG",
+    }
+    DEMOCRATIC_REPUBLIC_OF_THE_CONGO = {
+        "name": "Democratic Republic of the Congo",
+        "iso2": "CD",
+        "iso3": "COD",
+    }
+    DJIBOUTI = {
+        "name": "Djibouti",
+        "iso2": "DJ",
+        "iso3": "DJI",
+    }
+    EQUATORIAL_GUINEA = {
+        "name": "Equatorial Guinea",
+        "iso2": "GQ",
+        "iso3": "GNQ",
+    }
+    ERITREA = {
+        "name": "Eritrea",
+        "iso2": "ER",
+        "iso3": "ERI",
+    }
+    ESWATINI = {
+        "name": "Eswatini",
+        "iso2": "SZ",
+        "iso3": "SWZ",
+    }
+    ETHIOPIA = {
+        "name": "Ethiopia",
+        "iso2": "ET",
+        "iso3": "ETH",
+    }
+    GABON = {
+        "name": "Gabon",
+        "iso2": "GA",
+        "iso3": "GAB",
+    }
+    GAMBIA = {
+        "name": "Gambia",
+        "iso2": "GM",
+        "iso3": "GMB",
+    }
+    GHANA = {
+        "name": "Ghana",
+        "iso2": "GH",
+        "iso3": "GHA",
+    }
+    GUINEA = {
+        "name": "Guinea",
+        "iso2": "GN",
+        "iso3": "GIN",
+    }
+    GUINEA_BISSAU = {
+        "name": "Guinea-Bissau",
+        "iso2": "GW",
+        "iso3": "GNB",
+    }
+    COTE_DIVOIRE = {
+        "name": "Cote d'Ivoire",
+        "iso2": "CI",
+        "iso3": "CIV",
+    }
+    KENYA = {
+        "name": "Kenya",
+        "iso2": "KE",
+        "iso3": "KEN",
+    }
+    LESOTHO = {
+        "name": "Lesotho",
+        "iso2": "LS",
+        "iso3": "LSO",
+    }
+    LIBERIA = {
+        "name": "Liberia",
+        "iso2": "LR",
+        "iso3": "LBR",
+    }
+    LIBYA = {
+        "name": "Libya",
+        "iso2": "LY",
+        "iso3": "LBY",
+    }
+    MADAGASCAR = {
+        "name": "Madagascar",
+        "iso2": "MG",
+        "iso3": "MDG",
+    }
+    MALAWI = {
+        "name": "Malawi",
+        "iso2": "MW",
+        "iso3": "MWI",
+    }
+    MALI = {
+        "name": "Mali",
+        "iso2": "ML",
+        "iso3": "MLI",
+    }
+    MAURITANIA = {
+        "name": "Mauritania",
+        "iso2": "MR",
+        "iso3": "MRT",
+    }
+    MAURITIUS = {
+        "name": "Mauritius",
+        "iso2": "MU",
+        "iso3": "MUS",
+    }
+    MOROCCO = {
+        "name": "Morocco",
+        "iso2": "MA",
+        "iso3": "MAR",
+    }
+    MOZAMBIQUE = {
+        "name": "Mozambique",
+        "iso2": "MZ",
+        "iso3": "MOZ",
+    }
+    NAMIBIA = {
+        "name": "Namibia",
+        "iso2": "NA",
+        "iso3": "NAM",
+    }
+    NIGER = {
+        "name": "Niger",
+        "iso2": "NE",
+        "iso3": "NER",
+    }
+    NIGERIA = {
+        "name": "Nigeria",
+        "iso2": "NG",
+        "iso3": "NGA",
+    }
+    RWANDA = {
+        "name": "Rwanda",
+        "iso2": "RW",
+        "iso3": "RWA",
+    }
+    SAO_TOME_PRINCIPE = {
+        "name": "Sao Tome and Principe",
+        "iso2": "ST",
+        "iso3": "STP",
+    }
+    SENEGAL = {
+        "name": "Senegal",
+        "iso2": "SN",
+        "iso3": "SEN",
+    }
+    SEYCHELLES = {
+        "name": "Seychelles",
+        "iso2": "SC",
+        "iso3": "SYC",
+    }
+    SIERRA_LEONE = {
+        "name": "Sierra Leone",
+        "iso2": "SL",
+        "iso3": "SLE",
+    }
+    SOMALIA = {
+        "name": "Somalia",
+        "iso2": "SO",
+        "iso3": "SOM",
+    }
+    SOUTH_AFRICA = {
+        "name": "South Africa",
+        "iso2": "ZA",
+        "iso3": "ZAF",
+    }
+    SOUTH_SUDAN = {
+        "name": "South Sudan",
+        "iso2": "SS",
+        "iso3": "SSD",
+    }
+    SUDAN = {
+        "name": "Sudan",
+        "iso2": "SD",
+        "iso3": "SDN",
+    }
+    TANZANIA = {
+        "name": "Tanzania",
+        "iso2": "TZ",
+        "iso3": "TZA",
+    }
+    TOGO = {
+        "name": "Togo",
+        "iso2": "TG",
+        "iso3": "TGO",
+    }
+    TUNISIA = {
+        "name": "Tunisia",
+        "iso2": "TN",
+        "iso3": "TUN",
+    }
+    UGANDA = {
+        "name": "Uganda",
+        "iso2": "UG",
+        "iso3": "UGA",
+    }
+    WESTERN_SAHARA = {
+        "name": "Western Sahara",
+        "iso2": "EH",
+        "iso3": "ESH",
+        "territory": True
+    }
+    ZAMBIA = {
+        "name": "Zambia",
+        "iso2": "ZM",
+        "iso3": "ZMB",
+    }
+    ZIMBABWE = {
+        "name": "Zimbabwe",
+        "iso2": "ZW",
+        "iso3": "ZWE",
+    }
+    REUNION = {
+        "name": "Reunion",
+        "iso2": "RE",
+        "iso3": "REU",
+        "territory": True
+    }
+    MAYOTTE = {
+        "name": "Mayotte",
+        "iso2": "YT",
+        "iso3": "MYT",
+        "territory": True
+    }
+    SAINT_HELENA_ASCENSION_TRISTAN_DA_CUNHA = {
+        "name": "Saint Helena, Ascension and Tristan da Cunha",
+        "iso2": "SH",
+        "iso3": "SHN",
+        "territory": True
     }
 
     @staticmethod
@@ -514,6 +1072,10 @@ class Country(Enum):
     @property
     def name(self):
         return self.value["name"]
+
+    @property
+    def is_territory(self):
+        return self.value.get("territory", False)
 
     @staticmethod
     def all():
@@ -545,7 +1107,7 @@ class Country(Enum):
 
     @lru_cache(maxsize=None)
     def label_coords(self, region=None):
-        from lib.Region import Map
+        from lib.Map import Map
         if self == Country.RUSSIA:
             if region == Map.EUROPE:
                 return 6400000, 4300000
@@ -636,9 +1198,23 @@ class Country(Enum):
         if self == Country.MALAYSIA:
             return 300702, -2836987
         if self == Country.INDONESIA:
-            return 1505332, -3398180
+            if region == Map.ASIA:
+                return 1505332, -3398180
+            if region == Map.OCEANIA:
+                return -2408426, -530239
         if self == Country.EAST_TIMOR:
             return 3702693, -4091964
+        if self == Country.BELIZE:
+            return -2900000, 954384
+        if self == Country.GUATEMALA:
+            return -3214000, 751500
+        if self == Country.EL_SALVADOR:
+            return -3086603, 500000
+        if self == Country.HAITI:
+            return -1337002, 819074
+        if self == Country.SEYCHELLES:
+            return  3290468, -1452692
+
         return None, None
 
 
@@ -661,14 +1237,29 @@ exceptions = {
     "Bosnia-Herzegovina": Country.BOSNIA_HERZEGOVINA,
     "Syrian Arab Republic": Country.SYRIA,
     "Korea, Dem. People's Rep.": Country.NORTH_KOREA,
-    "Korea, Republic of" : Country.SOUTH_KOREA,
-    "Taiwan Province of China" : Country.TAIWAN,
-    "Türkiye, Republic of" : Country.TURKEY,
+    "Korea, Republic of": Country.SOUTH_KOREA,
+    "Taiwan Province of China": Country.TAIWAN,
+    "Türkiye, Republic of": Country.TURKEY,
     "North Macedonia ": Country.NORTH_MACEDONIA,
-    "Egypt, Arab Rep.": Country.EGYPT
+    "Egypt, Arab Rep.": Country.EGYPT,
+    "Venezuela, RB": Country.VENEZUELA,
+    "St. Lucia": Country.SAINT_LUCIA,
+    "Puerto Rico (US)": Country.PUERTO_RICO,
+    "Bahamas, The": Country.BAHAMAS,
+    "Micronesia, Fed. Sts.": Country.MICRONESIA,
+    "Congo, Rep.": Country.CONGO,
+    "Congo, Republic of" : Country.CONGO,
+    "Côte d'Ivoire" : Country.COTE_DIVOIRE,
+    "South Sudan, Republic of " : Country.SOUTH_SUDAN,
+    "São Tomé and Príncipe" : Country.SAO_TOME_PRINCIPE,
+    "Lao P.D.R." : Country.LAOS,
+
+
+    "Congo, Dem. Rep.": Country.DEMOCRATIC_REPUBLIC_OF_THE_CONGO,
+    "Gambia, The": Country.GAMBIA,
+    "Somalia, Fed. Rep.": Country.SOMALIA
 
 }
-
 
 
 @lru_cache(maxsize=None)
