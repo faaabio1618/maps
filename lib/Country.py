@@ -1132,7 +1132,7 @@ class Country(Enum):
         if self == Country.SWITZERLAND:
             return 4185571, 2650000
         if self == Country.CYPRUS:
-            return 6520000, 1600000
+            return 6440000, 1550000
         if self == Country.CZECHIA:
             return 4705309, 2953169
         if self == Country.DENMARK:
@@ -1249,9 +1249,22 @@ exceptions = {
     "Micronesia, Fed. Sts.": Country.MICRONESIA,
     "Congo, Rep.": Country.CONGO,
     "Congo, Republic of" : Country.CONGO,
+    "Congo, Republic of " : Country.CONGO,
     "Côte d'Ivoire" : Country.COTE_DIVOIRE,
-    "South Sudan, Republic of " : Country.SOUTH_SUDAN,
+    "South Sudan, Republic of" : Country.SOUTH_SUDAN,
+    "Bolivia (Plurinational State of)" : Country.BOLIVIA,
+    "Iran (Islamic Republic of)": Country.IRAN,
+    "Netherlands (Kingdom of the)" : Country.NETHERLANDS,
+    "Republic of Korea" : Country.SOUTH_KOREA,
+    "Republic of Moldova" : Country.MOLDOVA,
+    "State of Palestine" : Country.PALESTINE,
+    "Türkiye" : Country.TURKEY,
     "São Tomé and Príncipe" : Country.SAO_TOME_PRINCIPE,
+    "United Kingdom of Great Britain and Northern Ireland" : Country.UNITED_KINGDOM,
+    "United Republic of Tanzania": Country.TANZANIA,
+    "Venezuela (Bolivarian Republic of)" : Country.VENEZUELA,
+    "United States of America" : Country.UNITED_STATES,
+    "Réunion" : Country.REUNION,
     "Lao P.D.R." : Country.LAOS,
 
 

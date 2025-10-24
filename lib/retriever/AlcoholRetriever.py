@@ -12,7 +12,7 @@ class AlcoholRetriever(AbstractDataRetriever):
             round=0,
             show_final=True,
             max_year_range=[2021,2021],
-            min_year_range=[2000,2000],
+            min_year_range=[2008,2008],
             data_name="Alcohol, total per capita (15+) consumption",
             unit="litre of pure alcohol"
         )

@@ -9,7 +9,7 @@ import numpy as np
 import pandas as pd
 import requests
 from matplotlib import pyplot as plt
-from matplotlib.colors import TwoSlopeNorm
+from matplotlib.colors import TwoSlopeNorm, LinearSegmentedColormap
 from matplotlib.offsetbox import TextArea, AnnotationBbox
 
 from lib.Country import Country
@@ -171,7 +171,8 @@ class AbstractDataRetriever(abc.ABC):
         if vmin == 0:
             vcenter = 0.1
         norm = TwoSlopeNorm(vmin=vmin, vcenter=vcenter, vmax=maxabs)
-        schema = cmocean.cm.curl_r
+        schema = cmocean.cm.curl
+        # schema = LinearSegmentedColormap.from_list('mycmap', [(0.0, "brown"), (0.49,"yellow"), (0.5, "white"), (1.0, "purple")])
         gdf.plot(column=DATA_LABEL, ax=ax, legend=False, cmap=schema, norm=norm,
                  linewidth=0.5, edgecolor="0.7", antialiased=True,
                  missing_kwds={"color": "#e0e0e0", "edgecolor": "0.7", "label": NA_LABEL})
