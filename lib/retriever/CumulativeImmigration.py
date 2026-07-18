@@ -12,7 +12,7 @@ class CumulativeImmigration(AbstractDataRetriever):
             round=0,
             source="https://data.worldbank.org/indicator/SM.POP.NETM",
             min_year_range=min_year_range or [1990, 1995],
-            unit="%",
+            unit="people",
             max_year_range=max_year_range or [2023, 2023],
             show_final=True,
             description="Net migration is the net total of migrants during the period, that is, the number of immigrants minus the number of emigrants, including both citizens and noncitizens."

@@ -1,15 +1,15 @@
 import abc
 import os
 import textwrap
+from datetime import date
 from typing import Tuple
 
-import cmocean
 import geopandas as gpd
 import numpy as np
 import pandas as pd
 import requests
 from matplotlib import pyplot as plt
-from matplotlib.colors import TwoSlopeNorm, LinearSegmentedColormap
+from matplotlib.colors import LinearSegmentedColormap, Normalize
 from matplotlib.offsetbox import TextArea, AnnotationBbox
 
 from lib.Country import Country
@@ -18,6 +18,68 @@ NA_LABEL = None
 DATA_LABEL = 'data'
 FINAL_LABEL = 'final_value'
 YELLOW = "#fceaa9"
+CURRENT_YEAR = date.today().year
+LATEST_COMPLETE_YEAR = CURRENT_YEAR - 1
+MAP_STYLE_VERSION = "blue-gold-high-contrast-v5"
+CHANGE_SCALE_COLORS = (
+    (0.0, "#183153"),
+    (0.25, "#4f76a8"),
+    (0.4, "#a9bfdb"),
+    (0.5, "#f4f4f1"),
+    (0.58, "#fff0a6"),
+    (0.65, "#e7c13f"),
+    (0.72, "#ba8d00"),
+    (0.8, "#8a6500"),
+    (0.9, "#674a00"),
+    (1.0, "#493400"),
+)
+CHANGE_COLORMAP = LinearSegmentedColormap.from_list(
+    "neutral_blue_gold",
+    CHANGE_SCALE_COLORS,
+)
+
+
+class NoComparableDataError(ValueError):
+    pass
+
+
+class AdaptiveDivergingNorm(Normalize):
+    """Keep zero neutral while preventing outliers from flattening the scale."""
+
+    def __init__(self, values, rank_weight=0.55):
+        finite_values = np.asarray(values, dtype=float)
+        finite_values = finite_values[np.isfinite(finite_values)]
+        self.magnitudes = np.unique(np.abs(finite_values[finite_values != 0]))
+        self.rank_weight = rank_weight
+        max_abs = self.magnitudes[-1] if len(self.magnitudes) else 1.0
+        super().__init__(vmin=-max_abs, vmax=max_abs, clip=True)
+
+    def __call__(self, value, clip=None):
+        result, is_scalar = self.process_value(value)
+        raw = result.data.astype(float)
+        mask = np.ma.getmaskarray(result) | ~np.isfinite(raw)
+        magnitude = np.abs(raw)
+
+        if len(self.magnitudes):
+            magnitude_position = np.clip(magnitude / self.magnitudes[-1], 0, 1)
+            rank_position = np.interp(
+                magnitude,
+                self.magnitudes,
+                np.arange(1, len(self.magnitudes) + 1) / len(self.magnitudes),
+                left=0,
+                right=1,
+            )
+            position = (
+                (1 - self.rank_weight) * magnitude_position
+                + self.rank_weight * rank_position
+            )
+        else:
+            position = np.zeros_like(magnitude)
+
+        normalized = 0.5 + np.sign(raw) * 0.5 * position
+        normalized[raw == 0] = 0.5
+        normalized = np.ma.array(normalized, mask=mask)
+        return normalized[0] if is_scalar else normalized
 
 
 def human_format(num: float):
@@ -35,6 +97,23 @@ def human_format(num: float):
     if num_str in ('-0', '-0.0', '0.0'):
         num_str = '0'
     return f"{num_str}{suffixes[magnitude]}"
+
+
+def format_map_value(value: float, decimal_places: int, compact: bool) -> str:
+    """Format a signed map label without changing its underlying numeric value."""
+    absolute_value = abs(value)
+    if compact and absolute_value >= 1000:
+        magnitude = human_format(absolute_value)
+    elif decimal_places == 0:
+        magnitude = str(int(absolute_value))
+    else:
+        magnitude = f"{absolute_value:.{decimal_places}f}".rstrip('0').rstrip('.')
+
+    if value > 0:
+        return f"+{magnitude}"
+    if value < 0:
+        return f"−{magnitude}"
+    return magnitude
 
 
 class AbstractDataRetriever(abc.ABC):
@@ -55,13 +134,14 @@ class AbstractDataRetriever(abc.ABC):
         self.data_name = data_name
         self.keep_unit = keep_unit
         self.min_year_range = min_year_range or [1990, 1996]
-        self.max_year_range = max_year_range or [2018, 2024]
+        self.max_year_range = max_year_range or [2018, LATEST_COMPLETE_YEAR]
         self.round = round
         self.source = source
         self.description = description
         self.unit = unit
         self.partial_countries = []
         self.show_final = show_final
+        self.output_style_version = MAP_STYLE_VERSION
 
     @abc.abstractmethod
     def retrieve(self, region) -> Tuple[pd.DataFrame, str]:
@@ -82,35 +162,85 @@ class AbstractDataRetriever(abc.ABC):
             return AbstractDataRetriever.__get_maps(iso3)
 
     def good_years(self, *, data, data_column, region) -> Tuple[int, int]:
-        res = []
         # keep only countries in the region
         data = data[data['iso_a3'].isin([country.iso3 for country in region.countries])]
         # remove nan
         data = data[data[data_column].notna()]
-        counts = {}
+        coverage = {}
+        exact_observations = {}
         min_years = range(self.min_year_range[0], self.min_year_range[1] + 1)
         max_years = range(self.max_year_range[0], self.max_year_range[1] + 1)
         for min_year in min_years:
             for max_year in max_years:
-                data_filtered = data[(data['year'] == min_year) | (data['year'] == max_year)]
-                data_filtered = data_filtered.groupby('iso_a3').filter(lambda x: len(x) == 2)
-                counts[(min_year, max_year)] = len(data_filtered['iso_a3'].unique())
+                start_countries = set(data.loc[data['year'].between(
+                    max(min_year - 1, self.min_year_range[0]),
+                    min(min_year + 1, self.min_year_range[1]),
+                ), 'iso_a3'])
+                end_countries = set(data.loc[data['year'].between(
+                    max(max_year - 1, self.max_year_range[0]),
+                    min(max_year + 1, self.max_year_range[1]),
+                ), 'iso_a3'])
+                comparable_countries = start_countries & end_countries
+                years = (min_year, max_year)
+                coverage[years] = len(comparable_countries)
 
-        max_count = max(counts.values())
-        good_ranges = [k for k, v in counts.items() if v == max_count]
-        # choose the widest range
-        return max(good_ranges, key=lambda x: x[1] - x[0])
+                exact_start_countries = set(data.loc[data['year'].eq(min_year), 'iso_a3'])
+                exact_end_countries = set(data.loc[data['year'].eq(max_year), 'iso_a3'])
+                exact_observations[years] = (
+                    len(comparable_countries & exact_start_countries)
+                    + len(comparable_countries & exact_end_countries)
+                )
+
+        max_count = max(coverage.values())
+        if max_count == 0:
+            raise NoComparableDataError(
+                f"No countries have comparable {self.data_name} observations "
+                "in the configured start and end ranges"
+            )
+        # Prefer maximum coverage, but do not shift a fully populated exact year
+        # forward merely because its observations also fit an adjacent-year window.
+        return max(
+            coverage,
+            key=lambda years: (
+                coverage[years],
+                exact_observations[years],
+                years[1],
+                years[1] - years[0],
+            ),
+        )
 
     def _file_name(self, *, year_from, year_to, region):
         return f"outputs/{region.name}/{year_from}/{year_to}/{self.data_name}.png"
+
+    @staticmethod
+    def _style_marker_path(filename):
+        relative_output = os.path.relpath(os.path.normpath(filename), "outputs")
+        return os.path.join("data", "cache", "styles", f"{relative_output}.style")
+
+    def _render_style_version(self, region):
+        revision = getattr(region, "style_revision", None)
+        if revision:
+            return f"{self.output_style_version}-{revision}"
+        return self.output_style_version
+
+    def _has_current_style(self, filename, region):
+        marker = self._style_marker_path(filename)
+        if not os.path.exists(marker):
+            return False
+        with open(marker, encoding="utf-8") as style_file:
+            return style_file.read().strip() == self._render_style_version(region)
 
     def plot(self, region, force=False):
 
         data, data_column = self.retrieve(region)
         data, year_from, year_to = self.apply_diff(data=data, data_column=data_column, region=region)
+        if not data[DATA_LABEL].notna().any():
+            raise NoComparableDataError(
+                f"No comparable {self.data_name} values are available for {region.name}"
+            )
         filename = self._file_name(year_from=year_from, year_to=year_to, region=region)
         if not force:
-            if os.path.exists(filename):
+            if os.path.exists(filename) and self._has_current_style(filename, region):
                 print(f"{filename} already exists, skipping...")
                 return filename
             else:
@@ -164,16 +294,8 @@ class AbstractDataRetriever(abc.ABC):
         vals = gdf[gdf['ADM0_A3'].isin(countries_to_show)][DATA_LABEL].to_numpy(dtype=float)  # we center at 0
         min_value = np.nanmin(vals)
         max_value = np.nanmax(vals)
-        maxabs = np.nanpercentile(np.abs(vals), 92)
-        # minabs = np.nanpercentile(np.abs(vals), 8)
-        vmin = -1 * maxabs
-        vcenter = 0
-        if vmin == 0:
-            vcenter = 0.1
-        norm = TwoSlopeNorm(vmin=vmin, vcenter=vcenter, vmax=maxabs)
-        schema = cmocean.cm.curl
-        # schema = LinearSegmentedColormap.from_list('mycmap', [(0.0, "brown"), (0.49,"yellow"), (0.5, "white"), (1.0, "purple")])
-        gdf.plot(column=DATA_LABEL, ax=ax, legend=False, cmap=schema, norm=norm,
+        norm = AdaptiveDivergingNorm(vals)
+        gdf.plot(column=DATA_LABEL, ax=ax, legend=False, cmap=CHANGE_COLORMAP, norm=norm,
                  linewidth=0.5, edgecolor="0.7", antialiased=True,
                  missing_kwds={"color": "#e0e0e0", "edgecolor": "0.7", "label": NA_LABEL})
         # exclude countries where show_value is False
@@ -191,21 +313,18 @@ class AbstractDataRetriever(abc.ABC):
             value = np.nan if label == "nan" or np.isnan(label) else float(label)
             # print(f"{country}: {value} {x} {y}")
 
-            if self.round == 0 and not np.isnan(label):
-                label = str(int(value))
             custom_x, custom_y = country_obj.label_coords(region)
             if custom_x and custom_y:
                 x, y = custom_x, custom_y
 
-            label = str(label)
             if np.isnan(value):
                 label = NA_LABEL
             else:
-                if float(label) > 0:
-                    label = "+" + label
-                elif float(label) < 0:
-                    # use true minus sign
-                    label = "−" + label[1:]
+                label = format_map_value(
+                    value,
+                    decimal_places=self.round,
+                    compact=self.keep_unit,
+                )
                 if not self.keep_unit:
                     label = f"{label}%"
                 if country_obj in self.partial_countries:
@@ -213,14 +332,20 @@ class AbstractDataRetriever(abc.ABC):
 
             # label = country_obj.iso3
             # print(f'{country} {x} {y}')
-            number_of_digits = len(str(value))
-            font_size = country_obj.label_size - number_of_digits + self.round
+            number_of_digits = len(label) if label is not None else 0
+            font_size = (
+                country_obj.label_size
+                - number_of_digits
+                + self.round
+                - getattr(region, "label_font_reduction", lambda country: 0)(country_obj)
+            )
+            font_size = max(font_size, 6)
             # if color is very dark, use white font
             bbox = {'facecolor': 'black', 'edgecolor': 'none', 'boxstyle': 'round,pad=0.2', 'alpha': 0.8}
             font_color = "white"
             if value == min_value or value == max_value:
                 # make a bigger border
-                bbox['edgecolor'] = "green"
+                bbox['edgecolor'] = "#737373"
                 bbox["alpha"] = 1
                 bbox['linewidth'] = 2
 
@@ -246,6 +371,10 @@ class AbstractDataRetriever(abc.ABC):
         os.makedirs(os.path.dirname(filename), exist_ok=True)
         fig.savefig(filename, dpi=dpi, pad_inches=0.12, bbox_inches='tight',
                     bbox_extra_artists=[ranks] if self.show_final else None)
+        style_marker = self._style_marker_path(filename)
+        os.makedirs(os.path.dirname(style_marker), exist_ok=True)
+        with open(style_marker, "w", encoding="utf-8") as style_file:
+            style_file.write(self._render_style_version(region))
         plt.close(fig)
         return filename
 
@@ -310,12 +439,14 @@ class AbstractDataRetriever(abc.ABC):
         note = textwrap.fill(note, width=40, max_lines=9, placeholder="... [See more at source]",
                              replace_whitespace=False, )
         xy, ha, va = region.description_position
-        xy = (new_margin, xy[1])
+        if region.description_follows_rank:
+            xy = (new_margin, xy[1])
+            ha = side
         text_area = TextArea(note, textprops={'color': 'black', "ha": "left", "fontsize": 11})
         annotation_box = AnnotationBbox(
             text_area, xy, xycoords=ax.transAxes,
             boxcoords=ax.transAxes,
-            box_alignment=(1 if side == "right" else 0, 0),
+            box_alignment=(0 if ha == "left" else 1, 1 if va == "top" else 0),
             bboxprops={'facecolor': YELLOW, 'edgecolor': 'none', 'boxstyle': 'round,pad=0.2', 'alpha': 1},
         )
         if self.description:
@@ -367,37 +498,29 @@ class AbstractDataRetriever(abc.ABC):
         countries = region.countries
         data = data[data['iso_a3'].isin([country.iso3 for country in countries])]
         data = data[data[data_column].notna()]
-        data["is_year_to"] = data["year"] == year_to
-        data["is_year_from"] = data["year"] == year_from
-        data["has_year_to"] = data.groupby("iso_a3")["is_year_to"].transform("max")
-        data["has_year_from"] = data.groupby("iso_a3")["is_year_from"].transform("max")
 
-        data["min_year"] = data.groupby("iso_a3")["year"].transform("min")
-        data["max_year"] = data.groupby("iso_a3")["year"].transform("max")
-        # if a country has year to replace min_year with year_to
-        data.loc[(data["has_year_to"]), "min_year"] = year_from
-        # if a country has year from replace max_year with year_from
-        data.loc[(data["has_year_from"]), "max_year"] = year_to
-        data = data[(data["min_year"] >= self.min_year_range[0]) & (data["min_year"] <= self.min_year_range[1])]
-        data = data[(data["max_year"] >= self.max_year_range[0]) & (data["max_year"] <= self.max_year_range[1])]
+        def select_endpoint(endpoint_year, allowed_range, prefer_later):
+            candidates = data[data['year'].between(
+                max(endpoint_year - 1, allowed_range[0]),
+                min(endpoint_year + 1, allowed_range[1])
+            )].copy()
+            candidates['year_distance'] = (candidates['year'] - endpoint_year).abs()
+            candidates = candidates.sort_values(
+                by=['iso_a3', 'year_distance', 'year'],
+                ascending=[True, True, not prefer_later]
+            )
+            candidates = candidates.drop_duplicates(subset=['iso_a3'], keep='first')
+            candidates['year'] = endpoint_year
+            return candidates[['iso_a3', 'year', data_column]]
 
-        data = data[(data['year'] == data["min_year"]) | (data['year'] == data["max_year"])]
-        data = data.drop(columns=["min_year", "max_year"])
-
-        missing_countries = [country for country in countries if country.iso3 not in data['iso_a3'].values]
-        for country in missing_countries:
-            if country:
-                data = pd.concat([data, pd.DataFrame({
-                    'iso_a3': [country.iso3],
-                    'year': [year_from],
-                    data_column: [np.nan]
-                })], ignore_index=True)
-
-        data.loc[
-            (data['year'] >= self.min_year_range[0]) & (data['year'] <= self.min_year_range[1]), 'year'] = year_from
-        data.loc[(data['year'] >= self.max_year_range[0]) & (data['year'] <= self.max_year_range[1]), 'year'] = year_to
-
+        start_data = select_endpoint(year_from, self.min_year_range, prefer_later=False)
+        end_data = select_endpoint(year_to, self.max_year_range, prefer_later=True)
+        data = pd.concat([start_data, end_data], ignore_index=True)
         data = data.pivot(index='iso_a3', columns='year', values=data_column)
+        data = data.reindex(
+            index=[country.iso3 for country in countries],
+            columns=[year_from, year_to]
+        )
         data.columns = [f"{year}_{data_column}" for year in data.columns]
         data.reset_index(inplace=True)
         data['year_from'] = year_from

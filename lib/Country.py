@@ -653,6 +653,26 @@ class Country(Enum):
         "iso2": "LC",
         "iso3": "LCA",
     }
+    DOMINICA = {
+        "name": "Dominica",
+        "iso2": "DM",
+        "iso3": "DMA",
+    }
+    GRENADA = {
+        "name": "Grenada",
+        "iso2": "GD",
+        "iso3": "GRD",
+    }
+    SAINT_KITTS_NEVIS = {
+        "name": "Saint Kitts and Nevis",
+        "iso2": "KN",
+        "iso3": "KNA",
+    }
+    SAINT_VINCENT_GRENADINES = {
+        "name": "Saint Vincent and the Grenadines",
+        "iso2": "VC",
+        "iso3": "VCT",
+    }
 
     AUSTRALIA = {
         "name": "Australia",
@@ -1108,6 +1128,8 @@ class Country(Enum):
     @lru_cache(maxsize=None)
     def label_coords(self, region=None):
         from lib.Map import Map
+        if region == Map.WORLD:
+            return None, None
         if self == Country.RUSSIA:
             if region == Map.EUROPE:
                 return 6400000, 4300000
@@ -1244,6 +1266,8 @@ exceptions = {
     "Egypt, Arab Rep.": Country.EGYPT,
     "Venezuela, RB": Country.VENEZUELA,
     "St. Lucia": Country.SAINT_LUCIA,
+    "St. Kitts and Nevis": Country.SAINT_KITTS_NEVIS,
+    "St. Vincent and the Grenadines": Country.SAINT_VINCENT_GRENADINES,
     "Puerto Rico (US)": Country.PUERTO_RICO,
     "Bahamas, The": Country.BAHAMAS,
     "Micronesia, Fed. Sts.": Country.MICRONESIA,
@@ -1274,12 +1298,22 @@ exceptions = {
 
 }
 
+# Some data sources include ISO-recognized economies that are not represented
+# as map regions in the Country enum. They can still be normalized without
+# producing a warning before a region-specific filter removes them.
+iso3_exceptions = {
+    "Hong Kong SAR": "HKG",
+    "Hong Kong SAR, China": "HKG",
+}
+
 
 @lru_cache(maxsize=None)
 def names_to_iso3(name):
     try:
         return Country.get_by_name(name).iso3
     except:
+        if name in iso3_exceptions:
+            return iso3_exceptions[name]
         if name in exceptions:
             return exceptions[name].iso3
         print(f"Could not find iso3 for {name}")
